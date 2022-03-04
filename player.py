@@ -2,16 +2,31 @@
 import os
 
 class Player:
-  def __init__(self, pieceIdentifiers, pieceInfo, drawGrid):
+  def __init__(self, pieceIdentifiers, pieceInfo, drawGrid, playerNum):
     self.pieceIdentifiers = pieceIdentifiers
     self.pieceInfo = pieceInfo
     self.drawGrid = drawGrid
+    self.playerNum = playerNum
 
-  def placePiece(self, grid, piece, flipped):
-    #Take desired coords
-    x = str(input("Enter alphabetical column: ")).lower()
+  #Helper function to clear the screen and display player number
+  def resetScreen(self):
+    os.system("cls||clear")
+    print(f"Player {self.playerNum}:\n")
+
+  def placePiece(self, grid, piece, flipped, position):
+    #Split position into a separate row and column value, attempt to guess format
+    if "," in position:
+      position = position.split(",")
+    else:
+      position = position.split(" ")
+    if len(position) != 2:
+      input("Grid reference must be in the format 'col, row'")
+      return False
+
+    #Convert to expected data types
+    x = str(position[0])
     try:
-      y = int(input("Enter numerical row: "))
+      y = int(position[1])
     except ValueError:
       input("Row must be an integer")
       return False
@@ -65,7 +80,7 @@ class Player:
 
   def placeShips(self, grid):
     #Wait for input, to allow any players to swap
-    input("Press any key to start placing ships")
+    input(f"Player {self.playerNum}: \nPress any key to start placing ships:")
 
     #Fill the grids with ships
     for piece in self.pieceIdentifiers:
@@ -74,7 +89,7 @@ class Player:
       #Keep trying to place until it succeeds
       while placing:
         #Clear the screen and draw the grid
-        os.system("cls||clear")
+        self.resetScreen()
         self.drawGrid(grid, False)
 
         #Display ship to place
@@ -86,9 +101,18 @@ class Player:
             print(piece)
 
         #Flip piece or place it
-        action = input("Enter f to flip piece, or nothing to place piece: ")
+        action = input("Enter f to flip piece, or a grid reference (x, y): ")
         if action == "f":
           flipped = not flipped
         else:
-          if self.placePiece(grid, piece, flipped):
+          if self.placePiece(grid, piece, flipped, action):
             placing = False
+
+  def nextMove(self, usedMoves):
+    self.resetScreen()
+    self.drawGrid(usedMoves, True)
+    #Get next move to make, validate it's in the grid and hasn't already been done
+    #Must return valid move, including type
+    x = int(input("x"))
+    y = int(input("y"))
+    return [x, y]
