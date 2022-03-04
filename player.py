@@ -9,7 +9,7 @@ class Player:
 
   def placePiece(self, grid, piece, flipped):
     #Take desired coords
-    x = str(input("Enter alphabetical column: "))
+    x = str(input("Enter alphabetical column: ")).lower()
     try:
       y = int(input("Enter numerical row: "))
     except ValueError:
