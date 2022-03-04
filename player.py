@@ -13,7 +13,8 @@ class Player:
     os.system("cls||clear")
     print(f"Player {self.playerNum}:\n")
 
-  def placePiece(self, grid, piece, flipped, position):
+  #Helper function to convert user input into valid coords
+  def inputToReference(self, position, grid):
     #Split position into a separate row and column value, attempt to guess format
     if "," in position:
       position = position.split(",")
@@ -21,7 +22,7 @@ class Player:
       position = position.split(" ")
     if len(position) != 2:
       input("Grid reference must be in the format 'col, row'")
-      return False
+      return None, None
 
     #Convert to expected data types
     x = str(position[0])
@@ -29,19 +30,29 @@ class Player:
       y = int(position[1])
     except ValueError:
       input("Row must be an integer")
-      return False
+      return None, None
 
     #Convert input to grid position
     try:
       x = ord(x) - 97
     except TypeError:
       input("Alphabetical grid reference must be a single character")
-      return False
+      return None, None
     y -= 1
 
     #Check coords fall inside grid boundaries
     if y > len(grid) - 1 or x > len(grid[0]) - 1 or y < 0 or x < 0:
       input("Coordinates must be within grid boundaries")
+      return None, None
+
+    #If the input was valid, return coords
+    return x, y
+
+  def placePiece(self, grid, piece, flipped, position):
+    x, y = self.inputToReference(position, grid)
+
+    #Check coords were actually returned
+    if x == None:
       return False
 
     #Return false if the ship won't fit

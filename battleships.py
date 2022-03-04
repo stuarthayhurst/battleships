@@ -95,7 +95,6 @@ while True:
   move = controllers[0].nextMove(moves[0])
   #Update enemy grid and made moves grids
   placeMove(grids[1], moves[0], move)
-
   #If the game is over, exit
   if checkWinner(grids[1]):
     winner = "Player 1"
@@ -103,8 +102,7 @@ while True:
 
   #Clear screen for next player
   os.system("cls||clear")
-  input("Press any key to continue")
-  os.system("cls||clear")
+  input("\n Press any key to continue")
 
   #Same as controller 1
   move = controllers[1].nextMove(moves[1])
@@ -112,5 +110,9 @@ while True:
   if checkWinner(grids[0]):
     winner = "Player 2"
     break
+
+  os.system("cls||clear")
+  input("\n Press any key to continue")
+
 
 print(f"{winner} wins!")
