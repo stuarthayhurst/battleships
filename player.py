@@ -120,10 +120,22 @@ class Player:
             placing = False
 
   def nextMove(self, usedMoves):
-    self.resetScreen()
-    self.drawGrid(usedMoves, True)
-    #Get next move to make, validate it's in the grid and hasn't already been done
-    #Must return valid move, including type
-    x = int(input("x"))
-    y = int(input("y"))
+    while True:
+      self.resetScreen()
+      self.drawGrid(usedMoves, True)
+
+      position = input("Enter a grid reference to fire at (x, y): ")
+      x, y = self.inputToReference(position, usedMoves)
+
+      #Check coords were actually returned
+      if x == None:
+        continue
+
+      #Check coords haven't already been used
+      if usedMoves[y][x] != "0":
+        input("The location has already been fired at!")
+        continue
+
+      break
+
     return [x, y]
