@@ -72,7 +72,7 @@ def placeMove(grid, usedMoves, move):
       return
 
   #Whichever ship was hit is no longer on the grid, announce it sank
-  print(f"Sank {pieceInfo[hitTile][0].capitalize()}")
+  print(f"Enemy {pieceInfo[hitTile][0]} was sunk!")
 
 #Initialise grids (standard 7x7)
 grids = createGrids(7, 7) #Store player ships
@@ -100,9 +100,8 @@ while True:
     winner = "Player 1"
     break
 
-  #Clear screen for next player
-  os.system("cls||clear")
-  input("\n Press any key to continue")
+  #Wait for next player
+  input("\nPress any key to continue")
 
   #Same as controller 1
   move = controllers[1].nextMove(moves[1])
@@ -111,8 +110,7 @@ while True:
     winner = "Player 2"
     break
 
-  os.system("cls||clear")
-  input("\n Press any key to continue")
+  input("\nPress any key to continue")
 
 
 print(f"{winner} wins!")
