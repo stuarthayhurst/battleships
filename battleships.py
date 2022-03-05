@@ -279,7 +279,7 @@ while True:
   try:
     #Handle each run of the game
     game.addPlayers([computer.Player, player.Player])
-    game.start(False)
+    game.start(True)
     game.printRuntime()
     #Reset player ships and moves to blank grids
     game.reset()
