@@ -154,13 +154,16 @@ class GameController:
   def placeMove(self, grid, usedMoves, move):
     hitTile = grid[move[1]][move[0]]
 
+    print(f"Firing at {chr(move[1] + 97).upper()}, {move[0]}... ", end = "")
+    time.sleep(0.1)
+
     #If guess was a miss, blank that tile and return
     if hitTile not in self.pieceIdentifiers:
       usedMoves[move[1]][move[0]] = " "
-      print("Miss!")
+      print("miss!")
       return
 
-    print("Hit!")
+    print("hit!")
     usedMoves[move[1]][move[0]] = "X"
     grid[move[1]][move[0]] = "0"
 
