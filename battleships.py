@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-import os
+import os, time
 import player
 
 pieceIdentifiers = ["c", "b", "d", "s", "p"]
@@ -16,6 +16,7 @@ class GameController:
     self.pieceIdentifiers = pieceIdentifiers
     self.pieceInfo = pieceInfo
     self.controllers = [0, 0]
+    self.startTime = 0
 
   #Return a list of blank grids (1 for each controller)
   def createGrids(self, gridWidth, gridHeight):
@@ -80,6 +81,13 @@ class GameController:
     #Whichever ship was hit is no longer on the grid, announce it sank
     print(f"Enemy {self.pieceInfo[hitTile][0]} was sunk!")
 
+  def printRuntime(self):
+    runtimeSeconds = time.time() - self.startTime
+    runtimeMinutes = int(runtimeSeconds // 60)
+    runtimeSeconds = int(runtimeSeconds % 60)
+
+    print(f"\nGame runtime: {runtimeMinutes}:{runtimeSeconds:02d}")
+
   def setup(self, gridWidth, gridHeight):
     #Initialise grids
     self.grids = self.createGrids(gridWidth, gridHeight) #Store player ships
@@ -95,6 +103,9 @@ class GameController:
     self.controllers[1] = controllers[1](self.pieceIdentifiers, self.pieceInfo, self.drawGrid, 2)
 
   def start(self):
+    #Start game timer
+    self.startTime = time.time()
+
     os.system("cls||clear")
     self.controllers[0].placeShips(self.grids[0])
     os.system("cls||clear")
@@ -133,3 +144,4 @@ if not game.setup(7, 7):
 
 game.addPlayers([player.Player, player.Player])
 game.start()
+game.printRuntime()
