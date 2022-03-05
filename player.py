@@ -119,6 +119,10 @@ class Player:
           if self.placePiece(grid, piece, flipped, action):
             placing = False
 
+    self.resetScreen()
+    self.drawGrid(grid, False)
+    input("\nPress any key to continue")
+
   def nextMove(self, usedMoves):
     while True:
       #Reset screen each input attempt
