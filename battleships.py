@@ -177,9 +177,9 @@ class GameController:
     print(f"Firing at {chr(move[0] + 97).upper()}, {move[1] + 1}", end = "", flush = True)
     if delay:
       for i in range(3):
-        time.sleep(0.2)
+        time.sleep(0.15)
         print(".", end = "", flush = True)
-      time.sleep(0.2)
+      time.sleep(0.15)
       print(" ", end = "")
     else:
       print("... ", end = "")
