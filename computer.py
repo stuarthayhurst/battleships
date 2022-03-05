@@ -40,6 +40,8 @@ class Player:
   def nextMove(self, usedMoves, remainingShips):
     self.resetScreen()
     self.playerHelpers.printShips(remainingShips)
+    self.playerHelpers.drawGrid(usedMoves, True)
+
     while True:
       #Take input and validate position
       xCoord = self.intToRef(random.randint(1, len(usedMoves[0])))
@@ -54,6 +56,7 @@ class Player:
       if usedMoves[y][x] != "0":
         continue
 
+      print()
       break
 
     return [x, y]
