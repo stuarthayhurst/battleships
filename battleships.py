@@ -103,10 +103,12 @@ class PlayerHelpers:
 
   def printShips(self, remainingShips):
     #Print the reamining ships
-    print("Target ships:", end = "")
-    for ship in remainingShips:
-      print(f" {self.pieceInfo[ship][0]}", end = "")
-    print("\n")
+    for playerNum, playerShips in enumerate(remainingShips):
+      print(f" - Player {playerNum + 1}'s ships:", end = "")
+      for ship in playerShips:
+        print(f" {self.pieceInfo[ship][0]}", end = "")
+      print()
+    print()
 
 class GameController:
   def __init__(self, pieceIdentifiers, pieceInfo):
@@ -218,14 +220,17 @@ class GameController:
     self.controllers[1] = controllers[1](self.pieceIdentifiers, self.pieceInfo, self.drawGrid, 2)
     self.controllers[1].passHelpers(self.playerHelpers)
 
-  def getShips(self, grid):
-    #Find all remaining ships
-    ships = []
-    for row in grid:
-      for col in row:
-        if col != "0" and col not in ships:
-          ships.append(col)
-    return sorted(ships)
+  def getShips(self, grids):
+    #Find all remaining ships for both players
+    ships = [[], []]
+    for playerNum, grid in enumerate(grids):
+      for row in grid:
+        for col in row:
+          if col != "0" and col not in ships[playerNum]:
+            ships[playerNum].append(col)
+      ships[playerNum] = sorted(ships[playerNum])
+
+    return ships
 
   def start(self, delayHit):
     #Start game timer
@@ -238,7 +243,7 @@ class GameController:
 
     while True:
       #Get next move from controller, using existing moves and remaining ships
-      move = self.controllers[0].nextMove(self.moves[0], self.getShips(self.grids[1]))
+      move = self.controllers[0].nextMove(self.moves[0], self.getShips(self.grids))
       #Update enemy grid and made moves grids
       self.placeMove(self.grids[1], self.moves[0], move, delayHit)
       #If the game is over, exit
@@ -251,7 +256,7 @@ class GameController:
         input("\nPress any key to continue")
 
       #Same as controller 1
-      move = self.controllers[1].nextMove(self.moves[1], self.getShips(self.grids[0]))
+      move = self.controllers[1].nextMove(self.moves[1], self.getShips(self.grids))
       self.placeMove(self.grids[0], self.moves[1], move, delayHit)
       if self.checkWinner(self.grids[0]):
         winner = "Player 2"
