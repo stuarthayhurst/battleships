@@ -14,7 +14,14 @@ class Player:
   #Helper function to clear the screen and display player number
   def resetScreen(self):
     os.system("cls||clear")
-    print(f"Player {self.playerNum}:\n")
+    print(f"Player {self.playerNum}:")
+
+  def printShips(self, remainingShips):
+    #Print the reamining ships
+    print("Target ships:", end = "")
+    for ship in remainingShips:
+      print(f" {self.pieceInfo[ship][0]}", end = "")
+    print("\n")
 
   def placeShips(self, grid):
     #Wait for input, to allow any players to swap
@@ -50,10 +57,11 @@ class Player:
     self.drawGrid(grid, False)
     input("\nPress any key to continue")
 
-  def nextMove(self, usedMoves):
+  def nextMove(self, usedMoves, remainingShips):
     while True:
       #Reset screen each input attempt
       self.resetScreen()
+      self.printShips(remainingShips)
       self.drawGrid(usedMoves, True)
 
       #Take input and validate position
