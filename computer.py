@@ -8,8 +8,8 @@ class Player:
     self.pieceInfo = pieceInfo
     self.playerNum = playerNum
 
-  def passHelpers(self, gridHelpers):
-    self.gridHelpers = gridHelpers
+  def passHelpers(self, playerHelpers):
+    self.playerHelpers = playerHelpers
 
   #Helper function to clear the screen and display player number
   def resetScreen(self):
@@ -42,7 +42,7 @@ class Player:
         position = f"{xCoord}, {random.randint(1, len(grid))}"
 
         #Attempt to place the piece
-        if self.gridHelpers.placePiece(grid, piece, flipped, position, False):
+        if self.playerHelpers.placePiece(grid, piece, flipped, position, False):
           placing = False
 
   def nextMove(self, usedMoves, remainingShips):
@@ -52,7 +52,7 @@ class Player:
       #Take input and validate position
       xCoord = self.intToRef(random.randint(1, len(usedMoves[0])))
       position = f"{xCoord}, {random.randint(1, len(usedMoves))}"
-      x, y = self.gridHelpers.inputToReference(position, usedMoves, False)
+      x, y = self.playerHelpers.inputToReference(position, usedMoves, False)
 
       #Check coords were actually returned
       if x == None:

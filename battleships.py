@@ -13,7 +13,7 @@ pieceInfo = {
   "p": ["patrol boat", 2]
 }
 
-class GridHelpers:
+class PlayerHelpers:
   def __init__(self, pieceInfo):
     self.pieceInfo = pieceInfo
 
@@ -107,7 +107,7 @@ class GameController:
     self.pieceInfo = pieceInfo
     self.controllers = [0, 0]
     self.startTime = 0
-    self.gridHelpers = GridHelpers(self.pieceInfo)
+    self.playerHelpers = PlayerHelpers(self.pieceInfo)
 
   #Return a list of blank grids (1 for each controller)
   def createGrids(self, gridWidth, gridHeight):
@@ -200,9 +200,9 @@ class GameController:
   def addPlayers(self, controllers):
     #Create a controller for each player
     self.controllers[0] = controllers[0](self.pieceIdentifiers, self.pieceInfo, self.drawGrid, 1)
-    self.controllers[0].passHelpers(self.gridHelpers)
+    self.controllers[0].passHelpers(self.playerHelpers)
     self.controllers[1] = controllers[1](self.pieceIdentifiers, self.pieceInfo, self.drawGrid, 2)
-    self.controllers[1].passHelpers(self.gridHelpers)
+    self.controllers[1].passHelpers(self.playerHelpers)
 
   def getShips(self, grid):
     #Find all remaining ships

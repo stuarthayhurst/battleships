@@ -8,8 +8,8 @@ class Player:
     self.drawGrid = drawGrid
     self.playerNum = playerNum
 
-  def passHelpers(self, gridHelpers):
-    self.gridHelpers = gridHelpers
+  def passHelpers(self, playerHelpers):
+    self.playerHelpers = playerHelpers
 
   #Helper function to clear the screen and display player number
   def resetScreen(self):
@@ -50,7 +50,7 @@ class Player:
         if action == "f":
           flipped = not flipped
         else:
-          if self.gridHelpers.placePiece(grid, piece, flipped, action, True):
+          if self.playerHelpers.placePiece(grid, piece, flipped, action, True):
             placing = False
 
     self.resetScreen()
@@ -66,7 +66,7 @@ class Player:
 
       #Take input and validate position
       position = input("Enter a grid reference to fire at (x, y): ")
-      x, y = self.gridHelpers.inputToReference(position, usedMoves, True)
+      x, y = self.playerHelpers.inputToReference(position, usedMoves, True)
 
       #Check coords were actually returned
       if x == None:
