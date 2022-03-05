@@ -126,7 +126,7 @@ class PlayerHelpers:
 
       for col in row:
         #If the piece isn't a ship, or ships are being shown, show the actual piece
-        if col not in self.pieceIdentifiers or hideShips == False:
+        if col not in self.pieceIdentifiers or not hideShips:
           #Print hit markers in red
           if col == "X":
             print("\033[31m", end = "")
@@ -142,9 +142,9 @@ class PlayerHelpers:
   def printShips(self, remainingShips):
     #Print the reamining ships
     for playerNum, playerShips in enumerate(remainingShips):
-      print(f" - Player {playerNum + 1}'s ships:", end = "")
+      print(f" Player {playerNum + 1}'s ships:", end = "")
       for ship in playerShips:
-        print(f" {self.pieceInfo[ship][0]}", end = "")
+        print(f" {self.pieceInfo[ship][0]}:{self.pieceInfo[ship][1]}", end = "")
       print()
     print()
 
@@ -239,7 +239,7 @@ class GameController:
         for col in row:
           if col != "0" and col not in ships[playerNum]:
             ships[playerNum].append(col)
-      ships[playerNum] = sorted(ships[playerNum])
+      ships[playerNum] = sorted(ships[playerNum], key = lambda x:self.pieceInfo[x][1], reverse = True)
 
     return ships
 
