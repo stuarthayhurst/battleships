@@ -24,6 +24,10 @@ class PlayerHelpers:
       position = position.split(",")
     else:
       position = position.split(" ")
+
+    if len(position) == 1:
+      position = [position[0][0], position[0][1:]]
+
     if len(position) != 2:
       if verbose:
         input("Grid reference must be in the format 'col, row'")
