@@ -150,7 +150,13 @@ class GameController:
       for col in row:
         #If the piece isn't a ship, or ships are being shown, show the actual piece
         if col not in self.pieceIdentifiers or hideShips == False:
-          print(col, end = "")
+          #Print hit markers in red
+          if col == "X":
+            print("\033[31m", end = "")
+            print(col, end = "")
+            print("\033[0m", end = "")
+          else:
+            print(col, end = "")
         #Otherwise, censor any ships
         else:
           print("0", end = "")
