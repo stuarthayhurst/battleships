@@ -286,10 +286,32 @@ if not game.setup(7, 7):
   input("Failed to create grids, exiting")
   exit(1)
 
+#Choose the gamemode
+while True:
+  os.system("cls || clear")
+  print("1: Player vs player")
+  print("2: Player vs computer")
+  print("3: Computer vs computer")
+  try:
+    gamemode = int(input("Select a gamemode (1-3): "))
+    if gamemode < 1 or gamemode > 3:
+      os.system("cls || clear")
+    else:
+      break
+  except ValueError:
+    os.system("cls || clear")
+
+if gamemode == 1:
+  players = [player.Player, player.Player]
+elif gamemode == 2:
+  players = [player.Player, computer.Player]
+else:
+  players = [computer.Player, computer.Player]
+
 while True:
   try:
     #Handle each run of the game
-    game.addPlayers([computer.Player, player.Player])
+    game.addPlayers(players)
     game.start(True)
     game.printRuntime()
     #Reset player ships and moves to blank grids
