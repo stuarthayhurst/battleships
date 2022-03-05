@@ -31,7 +31,7 @@ class Player:
         self.drawGrid(grid, False)
 
         #Display ship to place
-        print(f"\nPlacing {self.pieceInfo[piece][0].capitalize()}:")
+        print(f"\nPlacing {self.pieceInfo[piece][0]}:")
         if not flipped:
           print(piece * self.pieceInfo[piece][1])
         else:
