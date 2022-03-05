@@ -121,9 +121,11 @@ class Player:
 
   def nextMove(self, usedMoves):
     while True:
+      #Reset screen each input attempt
       self.resetScreen()
       self.drawGrid(usedMoves, True)
 
+      #Take input and validate position
       position = input("Enter a grid reference to fire at (x, y): ")
       x, y = self.inputToReference(position, usedMoves)
 

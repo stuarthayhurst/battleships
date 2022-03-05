@@ -2,6 +2,7 @@
 import os, time
 import player
 
+#Board identifiers, as well as corresponding names and ship lengths
 pieceIdentifiers = ["c", "b", "d", "s", "p"]
 pieceInfo = {
   "c": ["carrier", 5],
@@ -141,6 +142,7 @@ class GameController:
 
     print(f"{winner} wins!")
 
+#Create instance of the game logic
 game = GameController(pieceIdentifiers, pieceInfo)
 
 #Use standard 7x7 setup
@@ -150,12 +152,15 @@ if not game.setup(7, 7):
 
 while True:
   try:
+    #Handle each run of the game
     game.addPlayers([player.Player, player.Player])
     game.start()
     game.printRuntime()
+    #Reset player ships and moves to blank grids
     game.reset()
     if input("Play again? (Y/n): ").lower() != "y":
       break
+  #Catch keyboard exit to exit gracefully
   except KeyboardInterrupt:
     print("\nExiting, goodbye :)")
     exit(0)
