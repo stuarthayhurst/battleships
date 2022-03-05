@@ -142,6 +142,10 @@ if not game.setup(7, 7):
   input("Failed to create grids, exiting")
   exit(1)
 
-game.addPlayers([player.Player, player.Player])
-game.start()
-game.printRuntime()
+try:
+  game.addPlayers([player.Player, player.Player])
+  game.start()
+  game.printRuntime()
+except KeyboardInterrupt:
+  print("\nExiting, goodbye :)")
+  exit(0)
