@@ -1,14 +1,10 @@
 #!/usr/bin/python3
 import os
+import controller
 
-class Player:
+class Player(controller.BaseController):
   def __init__(self, pieceIdentifiers, pieceInfo, playerNum):
-    self.pieceIdentifiers = pieceIdentifiers
-    self.pieceInfo = pieceInfo
-    self.playerNum = playerNum
-
-  def passHelpers(self, playerHelpers):
-    self.playerHelpers = playerHelpers
+    super().__init__(pieceIdentifiers, pieceInfo, playerNum)
 
   #Helper function to clear the screen and display player number
   def resetScreen(self):
