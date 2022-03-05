@@ -34,8 +34,8 @@ class Player(controller.BaseController):
             print(piece)
 
         #Flip piece or place it
-        action = input("Enter f to flip piece, or a grid reference (x, y): ")
-        if action == "f":
+        action = input("Enter r to rotate piece, or a grid reference (x, y): ")
+        if action == "f" or action == "r":
           flipped = not flipped
         else:
           if self.playerHelpers.placePiece(grid, piece, flipped, action, True):
