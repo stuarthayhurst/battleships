@@ -161,7 +161,7 @@ class GameController:
   def placeMove(self, grid, usedMoves, move):
     hitTile = grid[move[1]][move[0]]
 
-    print(f"Firing at {chr(move[1] + 97).upper()}, {move[0]}... ", end = "")
+    print(f"Firing at {chr(move[0] + 97).upper()}, {move[1] + 1}... ", end = "")
     time.sleep(0.1)
 
     #If guess was a miss, blank that tile and return

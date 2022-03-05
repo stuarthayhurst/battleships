@@ -70,6 +70,7 @@ class Player:
         input("The location has already been fired at!")
         continue
 
+      print()
       break
 
     return [x, y]
