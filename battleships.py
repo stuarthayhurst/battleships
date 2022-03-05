@@ -107,7 +107,7 @@ class PlayerHelpers:
     return True
 
   #Print the passed grid, hiding any ships if specified
-  def drawGrid(self, grid, hideShips):
+  def drawGrid(self, grid):
     #Print alphabetical grid references as header
     print("   ", end = "")
 
@@ -124,19 +124,15 @@ class PlayerHelpers:
         print("0", end = "")
       print(f"{rowNum} ", end = "")
 
+      #Show each grid point
       for col in row:
-        #If the piece isn't a ship, or ships are being shown, show the actual piece
-        if col not in self.pieceIdentifiers or not hideShips:
-          #Print hit markers in red
-          if col == "X":
-            print("\033[31m", end = "")
-            print(col, end = "")
-            print("\033[0m", end = "")
-          else:
-            print(col, end = "")
-        #Otherwise, censor any ships
+        #Print hit markers in red
+        if col == "X":
+          print("\033[31m", end = "")
+          print(col, end = "")
+          print("\033[0m", end = "")
         else:
-          print("0", end = "")
+          print(col, end = "")
       print()
 
   def printShips(self, remainingShips):

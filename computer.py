@@ -36,7 +36,7 @@ class Player(controller.BaseController):
   def nextMove(self, usedMoves, remainingShips):
     self.resetScreen()
     self.playerHelpers.printShips(remainingShips)
-    self.playerHelpers.drawGrid(usedMoves, True)
+    self.playerHelpers.drawGrid(usedMoves)
 
     while True:
       #Take input and validate position

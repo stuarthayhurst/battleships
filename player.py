@@ -23,7 +23,7 @@ class Player(controller.BaseController):
       while placing:
         #Clear the screen and draw the grid
         self.resetScreen()
-        self.playerHelpers.drawGrid(grid, False)
+        self.playerHelpers.drawGrid(grid)
 
         #Display ship to place
         print(f"\nPlacing {self.pieceInfo[piece][0]}:")
@@ -42,7 +42,7 @@ class Player(controller.BaseController):
             placing = False
 
     self.resetScreen()
-    self.playerHelpers.drawGrid(grid, False)
+    self.playerHelpers.drawGrid(grid)
     input("\nPress any key to continue")
 
   def nextMove(self, usedMoves, remainingShips):
@@ -50,7 +50,7 @@ class Player(controller.BaseController):
       #Reset screen each input attempt
       self.resetScreen()
       self.playerHelpers.printShips(remainingShips)
-      self.playerHelpers.drawGrid(usedMoves, True)
+      self.playerHelpers.drawGrid(usedMoves)
 
       #Take input and validate position
       position = input("Enter a grid reference to fire at (x, y): ")
