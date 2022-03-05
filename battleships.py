@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 import os, time
 import player
+import computer
 
 #Board identifiers, as well as corresponding names and ship lengths
 pieceIdentifiers = ["c", "b", "d", "s", "p"]
@@ -200,6 +201,15 @@ class GameController:
     self.controllers[1] = controllers[1](self.pieceIdentifiers, self.pieceInfo, self.drawGrid, 2)
     self.controllers[1].passHelpers(self.gridHelpers)
 
+  def getShips(self, grid):
+    #Find all remaining ships
+    ships = []
+    for row in grid:
+      for col in row:
+        if col != "0" and col not in ships:
+          ships.append(col)
+    return sorted(ships)
+
   def start(self):
     #Start game timer
     self.startTime = time.time()
@@ -210,8 +220,8 @@ class GameController:
     self.controllers[1].placeShips(self.grids[1])
 
     while True:
-      #Get next move from controller, using existing moves
-      move = self.controllers[0].nextMove(self.moves[0])
+      #Get next move from controller, using existing moves and remaining ships
+      move = self.controllers[0].nextMove(self.moves[0], self.getShips(self.grids[1]))
       #Update enemy grid and made moves grids
       self.placeMove(self.grids[1], self.moves[0], move)
       #If the game is over, exit
@@ -223,7 +233,7 @@ class GameController:
       input("\nPress any key to continue")
 
       #Same as controller 1
-      move = self.controllers[1].nextMove(self.moves[1])
+      move = self.controllers[1].nextMove(self.moves[1], self.getShips(self.grids[0]))
       self.placeMove(self.grids[0], self.moves[1], move)
       if self.checkWinner(self.grids[0]):
         winner = "Player 2"
@@ -244,7 +254,7 @@ if not game.setup(7, 7):
 while True:
   try:
     #Handle each run of the game
-    game.addPlayers([player.Player, player.Player])
+    game.addPlayers([computer.Player, player.Player])
     game.start()
     game.printRuntime()
     #Reset player ships and moves to blank grids
