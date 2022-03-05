@@ -2,10 +2,9 @@
 import os
 
 class Player:
-  def __init__(self, pieceIdentifiers, pieceInfo, drawGrid, playerNum):
+  def __init__(self, pieceIdentifiers, pieceInfo, playerNum):
     self.pieceIdentifiers = pieceIdentifiers
     self.pieceInfo = pieceInfo
-    self.drawGrid = drawGrid
     self.playerNum = playerNum
 
   def passHelpers(self, playerHelpers):
@@ -28,7 +27,7 @@ class Player:
       while placing:
         #Clear the screen and draw the grid
         self.resetScreen()
-        self.drawGrid(grid, False)
+        self.playerHelpers.drawGrid(grid, False)
 
         #Display ship to place
         print(f"\nPlacing {self.pieceInfo[piece][0]}:")
@@ -47,7 +46,7 @@ class Player:
             placing = False
 
     self.resetScreen()
-    self.drawGrid(grid, False)
+    self.playerHelpers.drawGrid(grid, False)
     input("\nPress any key to continue")
 
   def nextMove(self, usedMoves, remainingShips):
@@ -55,7 +54,7 @@ class Player:
       #Reset screen each input attempt
       self.resetScreen()
       self.playerHelpers.printShips(remainingShips)
-      self.drawGrid(usedMoves, True)
+      self.playerHelpers.drawGrid(usedMoves, True)
 
       #Take input and validate position
       position = input("Enter a grid reference to fire at (x, y): ")

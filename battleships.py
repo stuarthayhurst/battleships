@@ -14,7 +14,8 @@ pieceInfo = {
 }
 
 class PlayerHelpers:
-  def __init__(self, pieceInfo):
+  def __init__(self, pieceIdentifiers, pieceInfo):
+    self.pieceIdentifiers = pieceIdentifiers
     self.pieceInfo = pieceInfo
 
   #Helper function to convert user input into valid coords
@@ -105,30 +106,6 @@ class PlayerHelpers:
 
     return True
 
-  def printShips(self, remainingShips):
-    #Print the reamining ships
-    for playerNum, playerShips in enumerate(remainingShips):
-      print(f" - Player {playerNum + 1}'s ships:", end = "")
-      for ship in playerShips:
-        print(f" {self.pieceInfo[ship][0]}", end = "")
-      print()
-    print()
-
-class GameController:
-  def __init__(self, pieceIdentifiers, pieceInfo):
-    self.pieceIdentifiers = pieceIdentifiers
-    self.pieceInfo = pieceInfo
-    self.controllers = [0, 0]
-    self.startTime = 0
-    self.playerHelpers = PlayerHelpers(self.pieceInfo)
-
-  #Return a list of blank grids (1 for each controller)
-  def createGrids(self, gridWidth, gridHeight):
-    if gridWidth <= 26 and gridHeight <= 26:
-      return [[["0" for x in range(gridWidth)] for i in range(gridHeight)] for grid in range (2)]
-    else:
-      return False
-
   #Print the passed grid, hiding any ships if specified
   def drawGrid(self, grid, hideShips):
     #Print alphabetical grid references as header
@@ -161,6 +138,30 @@ class GameController:
         else:
           print("0", end = "")
       print()
+
+  def printShips(self, remainingShips):
+    #Print the reamining ships
+    for playerNum, playerShips in enumerate(remainingShips):
+      print(f" - Player {playerNum + 1}'s ships:", end = "")
+      for ship in playerShips:
+        print(f" {self.pieceInfo[ship][0]}", end = "")
+      print()
+    print()
+
+class GameController:
+  def __init__(self, pieceIdentifiers, pieceInfo):
+    self.pieceIdentifiers = pieceIdentifiers
+    self.pieceInfo = pieceInfo
+    self.controllers = [0, 0]
+    self.startTime = 0
+    self.playerHelpers = PlayerHelpers(self.pieceIdentifiers, self.pieceInfo)
+
+  #Return a list of blank grids (1 for each controller)
+  def createGrids(self, gridWidth, gridHeight):
+    if gridWidth <= 26 and gridHeight <= 26:
+      return [[["0" for x in range(gridWidth)] for i in range(gridHeight)] for grid in range (2)]
+    else:
+      return False
 
   def checkWinner(self, grid):
     #Return true if all pieces are gone
@@ -225,9 +226,9 @@ class GameController:
 
   def addPlayers(self, controllers):
     #Create a controller for each player
-    self.controllers[0] = controllers[0](self.pieceIdentifiers, self.pieceInfo, self.drawGrid, 1)
+    self.controllers[0] = controllers[0](self.pieceIdentifiers, self.pieceInfo, 1)
     self.controllers[0].passHelpers(self.playerHelpers)
-    self.controllers[1] = controllers[1](self.pieceIdentifiers, self.pieceInfo, self.drawGrid, 2)
+    self.controllers[1] = controllers[1](self.pieceIdentifiers, self.pieceInfo, 2)
     self.controllers[1].passHelpers(self.playerHelpers)
 
   def getShips(self, grids):

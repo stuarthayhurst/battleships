@@ -2,8 +2,7 @@
 import os, random
 
 class Player:
-  def __init__(self, pieceIdentifiers, pieceInfo, drawGrid, playerNum):
-    #drawGrid are unused, only accepted for compatibility with regular Player class
+  def __init__(self, pieceIdentifiers, pieceInfo, playerNum):
     self.pieceIdentifiers = pieceIdentifiers
     self.pieceInfo = pieceInfo
     self.playerNum = playerNum
