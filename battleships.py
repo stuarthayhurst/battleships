@@ -158,11 +158,18 @@ class GameController:
           return False
     return True
 
-  def placeMove(self, grid, usedMoves, move):
+  def placeMove(self, grid, usedMoves, move, delay):
     hitTile = grid[move[1]][move[0]]
 
-    print(f"Firing at {chr(move[0] + 97).upper()}, {move[1] + 1}... ", end = "")
-    time.sleep(0.1)
+    print(f"Firing at {chr(move[0] + 97).upper()}, {move[1] + 1}", end = "", flush = True)
+    if delay:
+      for i in range(3):
+        time.sleep(0.2)
+        print(".", end = "", flush = True)
+      time.sleep(0.2)
+      print(" ", end = "")
+    else:
+      print("... ", end = "")
 
     #If guess was a miss, blank that tile and return
     if hitTile not in self.pieceIdentifiers:
@@ -220,7 +227,7 @@ class GameController:
           ships.append(col)
     return sorted(ships)
 
-  def start(self):
+  def start(self, delayHit):
     #Start game timer
     self.startTime = time.time()
 
@@ -233,23 +240,25 @@ class GameController:
       #Get next move from controller, using existing moves and remaining ships
       move = self.controllers[0].nextMove(self.moves[0], self.getShips(self.grids[1]))
       #Update enemy grid and made moves grids
-      self.placeMove(self.grids[1], self.moves[0], move)
+      self.placeMove(self.grids[1], self.moves[0], move, delayHit)
       #If the game is over, exit
       if self.checkWinner(self.grids[1]):
         winner = "Player 1"
         break
 
       #Wait for next player
-      input("\nPress any key to continue")
+      if delayHit:
+        input("\nPress any key to continue")
 
       #Same as controller 1
       move = self.controllers[1].nextMove(self.moves[1], self.getShips(self.grids[0]))
-      self.placeMove(self.grids[0], self.moves[1], move)
+      self.placeMove(self.grids[0], self.moves[1], move, delayHit)
       if self.checkWinner(self.grids[0]):
         winner = "Player 2"
         break
 
-      input("\nPress any key to continue")
+      if delayHit:
+        input("\nPress any key to continue")
 
     print(f"{winner} wins!")
 
@@ -265,7 +274,7 @@ while True:
   try:
     #Handle each run of the game
     game.addPlayers([computer.Player, player.Player])
-    game.start()
+    game.start(False)
     game.printRuntime()
     #Reset player ships and moves to blank grids
     game.reset()
