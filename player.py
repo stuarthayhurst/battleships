@@ -16,13 +16,6 @@ class Player:
     os.system("cls||clear")
     print(f"Player {self.playerNum}:")
 
-  def printShips(self, remainingShips):
-    #Print the reamining ships
-    print("Target ships:", end = "")
-    for ship in remainingShips:
-      print(f" {self.pieceInfo[ship][0]}", end = "")
-    print("\n")
-
   def placeShips(self, grid):
     #Wait for input, to allow any players to swap
     input(f"Player {self.playerNum}: \nPress any key to start placing ships:")
@@ -61,7 +54,7 @@ class Player:
     while True:
       #Reset screen each input attempt
       self.resetScreen()
-      self.printShips(remainingShips)
+      self.playerHelpers.printShips(remainingShips)
       self.drawGrid(usedMoves, True)
 
       #Take input and validate position

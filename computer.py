@@ -16,13 +16,6 @@ class Player:
     os.system("cls||clear")
     print(f"Player {self.playerNum}: (computer)")
 
-  def printShips(self, remainingShips):
-    #Print the reamining ships
-    print("Target ships:", end = "")
-    for ship in remainingShips:
-      print(f" {self.pieceInfo[ship][0]}", end = "")
-    print("\n")
-
   def intToRef(self, coord):
     #Convert coord to alphabetical grid reference
     return chr(coord + 96)
@@ -47,7 +40,7 @@ class Player:
 
   def nextMove(self, usedMoves, remainingShips):
     self.resetScreen()
-    self.printShips(remainingShips)
+    self.playerHelpers.printShips(remainingShips)
     while True:
       #Take input and validate position
       xCoord = self.intToRef(random.randint(1, len(usedMoves[0])))

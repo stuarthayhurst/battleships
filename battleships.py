@@ -101,6 +101,13 @@ class PlayerHelpers:
 
     return True
 
+  def printShips(self, remainingShips):
+    #Print the reamining ships
+    print("Target ships:", end = "")
+    for ship in remainingShips:
+      print(f" {self.pieceInfo[ship][0]}", end = "")
+    print("\n")
+
 class GameController:
   def __init__(self, pieceIdentifiers, pieceInfo):
     self.pieceIdentifiers = pieceIdentifiers
