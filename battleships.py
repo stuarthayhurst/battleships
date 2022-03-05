@@ -97,6 +97,12 @@ class GameController:
       return False
     return True
 
+  def reset(self):
+    gridWidth = len(self.grids[0][0])
+    gridHeight = len(self.grids[0])
+    self.grids = self.createGrids(gridWidth, gridHeight)
+    self.moves = self.createGrids(gridWidth, gridHeight)
+
   def addPlayers(self, controllers):
     #Create a controller for each player
     self.controllers[0] = controllers[0](self.pieceIdentifiers, self.pieceInfo, self.drawGrid, 1)
@@ -142,10 +148,14 @@ if not game.setup(7, 7):
   input("Failed to create grids, exiting")
   exit(1)
 
-try:
-  game.addPlayers([player.Player, player.Player])
-  game.start()
-  game.printRuntime()
-except KeyboardInterrupt:
-  print("\nExiting, goodbye :)")
-  exit(0)
+while True:
+  try:
+    game.addPlayers([player.Player, player.Player])
+    game.start()
+    game.printRuntime()
+    game.reset()
+    if input("Play again? (Y/n): ").lower() != "y":
+      break
+  except KeyboardInterrupt:
+    print("\nExiting, goodbye :)")
+    exit(0)
