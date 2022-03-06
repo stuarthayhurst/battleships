@@ -108,6 +108,9 @@ class PlayerHelpers:
 
     return True
 
+  def printColour(self, text, colour):
+    print(f"{colour}{text}\033[0m", end = "")
+
   #Print the passed grid, hiding any ships if specified
   def drawGrid(self, grid):
     #Print alphabetical grid references as header
@@ -130,9 +133,9 @@ class PlayerHelpers:
       for col in row:
         #Print hit markers in red
         if col == "X":
-          print("\033[31m", end = "")
-          print(col, end = "")
-          print("\033[0m", end = "")
+          self.printColour(col, "\033[31m")
+        elif col in self.pieceIdentifiers:
+          self.printColour(col, "\033[94m")
         else:
           print(col, end = "")
       print()
