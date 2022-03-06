@@ -28,7 +28,8 @@ class PlayerHelpers:
       position = position.split(" ")
 
     if len(position) == 1:
-      position = [position[0][0], position[0][1:]]
+      if len(position[0]) >= 2:
+        position = [position[0][0], position[0][1:]]
 
     if len(position) != 2:
       if verbose:
