@@ -45,6 +45,7 @@ class Player(controller.BaseController):
     self.playerHelpers.drawGrid(usedMoves)
 
 #If the last hit was successful, try guessing around it in a circle
+# Swap the order of locations guessed around it, to prevent players figuring out a strategy
 #If any of these hit, follow in the same direction
 #If it reaches the end of a ship, try the other end
 #If once a ship is sunk, go back to searching for ships
@@ -56,7 +57,11 @@ class Player(controller.BaseController):
     #If there's a relevant hit to guess from, use it
     if self.lastHit != [-1, -1]:
       #Guess around the last hit, following the same direction if possible
-      directions = range(4)
+      if random.randint(0, 1) == 0:
+        directions = range(4)
+      else:
+        directions = [1, 0, 3, 2]
+
       if self.lastDirection != -1:
         #If the last guess was actually a hit, keep going that direction
         if self.lastGuess == self.lastHit:
