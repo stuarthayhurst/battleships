@@ -110,12 +110,14 @@ class Player(controller.BaseController):
             continue
 
           #Check that position hasn't already been used
-          if usedMoves[gridY][gridX] != "0":
+          if usedMoves[gridY][gridX] == "X":
             #If they were already used, try another direction
 
             if directionSwapped:
               continue
 
+          #Check that position hasn't already been used
+          if usedMoves[gridY][gridX] != "0":
             #If it was following a direction, go the other way
             if not directionSwapped and self.followingDirection:
               guessDirection += 2
