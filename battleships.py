@@ -108,37 +108,50 @@ class PlayerHelpers:
 
     return True
 
-  def printColour(self, text, colour):
-    print(f"{colour}{text}\033[0m", end = "")
-
   #Print the passed grid, hiding any ships if specified
   def drawGrid(self, grid):
-    #Print alphabetical grid references as header
-    print("   ", end = "")
+    #Print a line of text with the given colour
+    def printColour(text, colour):
+      print(f"{colour}{text}\033[0m", end = "")
 
-    for i in range(len(grid[0])):
-      #Print each alphabetical grid reference
-      print(chr(i + 65), end = "")
-    print()
+    #Print alphabetical grid references in a bar
+    def printAlphaRef(grid):
+      print("   ", end = "")
+      for i in range(len(grid[0])):
+        #Print each alphabetical grid reference
+        print(chr(i + 65), end = "")
+      print()
 
-    #Iterate over grid coords
-    for rowNum, row in enumerate(grid):
+    #Print row number
+    def printNumRef(rowNum):
       #Prefix a zero if single digit
       rowNum += 1
       if rowNum < 10:
         print("0", end = "")
       print(f"{rowNum} ", end = "")
 
+    printAlphaRef(grid)
+
+    #Iterate over grid coords
+    for rowNum, row in enumerate(grid):
+      printNumRef(rowNum)
+
       #Show each grid point
       for col in row:
         #Print hit markers in red
         if col == "X":
-          self.printColour(col, "\033[31m")
+          printColour(col, "\033[31m")
         elif col in self.pieceIdentifiers:
-          self.printColour(col, "\033[94m")
+          printColour(col, "\033[94m")
         else:
           print(col, end = "")
+
+      print(" ", end = "")
+      printNumRef(rowNum)
       print()
+
+    printAlphaRef(grid)
+    print()
 
   def printShips(self, remainingShips):
     #Print the reamining ships

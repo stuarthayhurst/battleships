@@ -26,7 +26,7 @@ class Player(controller.BaseController):
         self.playerHelpers.drawGrid(grid)
 
         #Display ship to place
-        print(f"\nPlacing {self.pieceInfo[piece][0]}:")
+        print(f"Placing {self.pieceInfo[piece][0]}:")
         if not flipped:
           print(piece * self.pieceInfo[piece][1])
         else:
@@ -43,7 +43,7 @@ class Player(controller.BaseController):
 
     self.resetScreen()
     self.playerHelpers.drawGrid(grid)
-    input("\nPress any key to continue")
+    input("Press any key to continue")
 
   def nextMove(self, usedMoves, remainingShips):
     while True:

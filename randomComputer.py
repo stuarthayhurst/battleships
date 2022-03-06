@@ -52,7 +52,6 @@ class Player(controller.BaseController):
       if usedMoves[y][x] != "0":
         continue
 
-      print()
       break
 
     return [x, y]
