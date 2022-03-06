@@ -9,6 +9,8 @@ class Player(controller.BaseController):
     self.lastHit = [-1, -1]
     self.lastGuess = [-2, -2]
     self.lastDirection = -1
+    self.followingDirection = False
+    self.directionSwapped = False
 
   #Helper function to clear the screen and display player number
   def resetScreen(self):
@@ -58,7 +60,11 @@ class Player(controller.BaseController):
       if self.lastDirection != -1:
         #If the last guess was actually a hit, keep going that direction
         if self.lastGuess == self.lastHit:
+          self.followingDirection = True
           directions = [self.lastDirection] + list(directions)
+        elif self.followingDirection:
+          directions = [(self.lastDirection + 2) % 4] + list(directions)
+          self.directionSwapped = True
 
       for guessDirection in directions:
         #If computer is happy with the guess, finish
@@ -66,12 +72,15 @@ class Player(controller.BaseController):
           break
 
         movingDirection = True
-        directionSwapped = False
+        directionSwapped = self.directionSwapped
         while movingDirection:
           #Select the next grid space in the current direction
           move = self.lastHit
-          if directionSwapped:
-            move = [gridX, gridY]
+          try:
+            if directionSwapped:
+              move = [gridX, gridY]
+          except UnboundLocalError:
+            move = self.lastHit
 
           if guessDirection == 0:
             gridX, gridY = move[0], move[1] - 1
@@ -91,8 +100,7 @@ class Player(controller.BaseController):
           #Check coords were valid
           if x == None:
             #If it was following a direction, go the other way
-            if not directionSwapped and len(directions) == 5:
-              print("Changing direction")
+            if not directionSwapped and self.followingDirection:
               guessDirection += 2
               guessDirection = guessDirection % 4
               directionSwapped = True
@@ -109,8 +117,7 @@ class Player(controller.BaseController):
               continue
 
             #If it was following a direction, go the other way
-            if not directionSwapped and len(directions) == 5:
-              print("Changing direction")
+            if not directionSwapped and self.followingDirection:
               guessDirection += 2
               guessDirection = guessDirection % 4
               directionSwapped = True
@@ -129,6 +136,8 @@ class Player(controller.BaseController):
       self.lastDirection = -1
       self.lastHit = [-1, -1]
       self.lastGuess = [-2, -2]
+      self.followingDirection = False
+      self.directionSwapped = False
 
       #Guess randomly until a valid move is found
       while True:
