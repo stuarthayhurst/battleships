@@ -50,8 +50,7 @@ class Player(controller.BaseController):
 #If it reaches the end of a ship, try the other end
 #If once a ship is sunk, go back to searching for ships
 #If the logic gets confused, fall back to searching
-
-#TODO (Split up large areas): When searching, try to intelligently look for ships
+#Use the middle of the largest continuous space as the guess
 
     done = False
     #If there's a relevant hit to guess from, use it
@@ -146,21 +145,8 @@ class Player(controller.BaseController):
       self.followingDirection = False
       self.directionSwapped = False
 
-      #Guess randomly until a valid move is found
-      while True:
-        #Take input and validate position
-        xCoord = self.intToRef(random.randint(1, len(usedMoves[0])))
-        position = f"{xCoord}, {random.randint(1, len(usedMoves))}"
-        x, y = self.playerHelpers.inputToReference(position, usedMoves, False)
-
-        #Check coords were actually returned
-        if x == None:
-          continue
-
-        #Check coords haven't already been used
-        if usedMoves[y][x] != "0":
-          continue
-
-        break
+      #Find largest space
+      target = controller.cutGrid(usedMoves)
+      return target[0], target[1]
 
     return [x, y]
