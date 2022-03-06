@@ -2,6 +2,7 @@
 import os, time, sys
 import player
 import computer
+import randomComputer
 
 #Board identifiers, as well as corresponding names and ship lengths
 pieceIdentifiers = ["c", "b", "d", "s", "p"]
@@ -167,7 +168,7 @@ class GameController:
           return False
     return True
 
-  def placeMove(self, grid, usedMoves, move, delay):
+  def placeMove(self, controller, grid, usedMoves, move, delay):
     hitTile = grid[move[1]][move[0]]
 
     print(f"Firing at {chr(move[0] + 97).upper()}, {move[1] + 1}", end = "", flush = True)
@@ -190,6 +191,10 @@ class GameController:
     usedMoves[move[1]][move[0]] = "X"
     grid[move[1]][move[0]] = "0"
 
+    #If the controller is a computer, let it know it hit
+    if controller.isComputer:
+      controller.lastHit = move
+
     #Return if the full ship hasn't been hit
     for row in grid:
       if hitTile in row:
@@ -197,6 +202,8 @@ class GameController:
 
     #Whichever ship was hit is no longer on the grid, announce it sank
     print(f"Enemy {self.pieceInfo[hitTile][0]} was sunk!")
+    if controller.isComputer:
+      controller.lastHit = [-1, -1]
 
   def printRuntime(self):
     runtimeSeconds = time.time() - self.startTime
@@ -252,7 +259,7 @@ class GameController:
       #Get next move from controller, using existing moves and remaining ships
       move = self.controllers[0].nextMove(self.moves[0], self.getShips(self.grids))
       #Update enemy grid and made moves grids
-      self.placeMove(self.grids[1], self.moves[0], move, delayHit)
+      self.placeMove(self.controllers[0], self.grids[1], self.moves[0], move, delayHit)
       #If the game is over, exit
       if self.checkWinner(self.grids[1]):
         winner = "Player 1"
@@ -264,7 +271,7 @@ class GameController:
 
       #Same as controller 1
       move = self.controllers[1].nextMove(self.moves[1], self.getShips(self.grids))
-      self.placeMove(self.grids[0], self.moves[1], move, delayHit)
+      self.placeMove(self.controllers[1], self.grids[0], self.moves[1], move, delayHit)
       if self.checkWinner(self.grids[0]):
         winner = "Player 2"
         break
@@ -302,7 +309,7 @@ if gamemode == 1:
 elif gamemode == 2:
   players = [player.Player, computer.Player]
 else:
-  players = [computer.Player, computer.Player]
+  players = [randomComputer.Player, computer.Player]
 
 #If '--no-delay' is passed, skip delays
 delay = True
