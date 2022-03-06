@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-import os, time
+import os, time, sys
 import player
 import computer
 
@@ -304,11 +304,17 @@ elif gamemode == 2:
 else:
   players = [computer.Player, computer.Player]
 
+#If '--no-delay' is passed, skip delays
+delay = True
+if len(sys.argv) > 1:
+  if sys.argv[1] == "--no-delay":
+    delay = False
+
 while True:
   try:
     #Handle each run of the game
     game.addPlayers(players)
-    game.start(True)
+    game.start(delay)
     game.printRuntime()
     #Reset player ships and moves to blank grids
     game.reset()
