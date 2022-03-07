@@ -37,7 +37,7 @@ class PlayerHelpers:
       return None, None
 
     #Convert to expected data types
-    x = str(position[0])
+    x = str(position[0]).lower()
     try:
       y = int(position[1])
     except ValueError:
