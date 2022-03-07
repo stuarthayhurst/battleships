@@ -11,73 +11,62 @@ class BaseController:
   def passHelpers(self, playerHelpers):
     self.playerHelpers = playerHelpers
 
+def getFreeSpace(x, y, usedMoves):
+  free = True
+  freeCount = 1
+
+  #Find free space after it on the same row
+  for i in range(x + 1, len(usedMoves[0])):
+    tile = usedMoves[y][i]
+    if tile == "0":
+      freeCount += 1
+    else:
+      break
+
+  #Find free space before it on the same row
+  for i in range(x - 1, -1, -1):
+    tile = usedMoves[y][i]
+    if tile == "0":
+      freeCount += 1
+    else:
+      break
+
+  #Find free space after it on the same column
+  for i in range(y + 1, len(usedMoves)):
+    tile = usedMoves[i][x]
+    if tile == "0":
+      freeCount += 1
+    else:
+      break
+
+  #Find free space before it on the same column
+  for i in range(y - 1, -1, -1):
+    tile = usedMoves[i][x]
+    if tile == "0":
+      freeCount += 1
+    else:
+      break
+
+  return freeCount
+
 def cutGrid(usedMoves):
-  #Hold start and end of each continuous space
-  largestSpaces = [[], []]
-  maxLength = 0
-  freeLength = 0
+  optimalLength = 0
+  optimalTargets = []
 
   #Identify the largest free spaces
-  for rowNum, row in enumerate(usedMoves):
-    for colNum, col in enumerate(row):
-      if col == "0":
-        freeLength += 1
-      else:
-        if freeLength > maxLength:
-          maxLength = freeLength
-        freeLength = 0
-    if freeLength > maxLength:
-      maxLength = freeLength
-    freeLength = 0
+  for rowNum in range(0, len(usedMoves)):
+    for colNum in range(0, len(usedMoves[0])):
+      if usedMoves[rowNum][colNum] == "0":
+        #Get number of free spaces in line with the coord
+        freeLength = getFreeSpace(colNum, rowNum, usedMoves)
+        #If it's equivalent to the best target, remember it
+        if freeLength == optimalLength:
+          optimalTargets.append([colNum, rowNum])
+        #If it's better than the old best target, forget all remembered coords and remember this one
+        elif freeLength > optimalLength:
+          optimalLength = freeLength
+          optimalTargets = [[colNum, rowNum]]
 
-  for colNum in range(0, len(usedMoves[0])):
-    for rowNum, row in enumerate(usedMoves):
-      col = row[colNum]
-      if col == "0":
-        freeLength += 1
-      else:
-        if freeLength > maxLength:
-          maxLength = freeLength
-        freeLength = 0
-    if freeLength > maxLength:
-      maxLength = freeLength
-    freeLength = 0
-
-  #Save those free spaces
-  for rowNum, row in enumerate(usedMoves):
-    freeStart = [0, rowNum]
-    for colNum, col in enumerate(row):
-      if col == "0":
-        freeLength += 1
-      else:
-        if freeLength == maxLength:
-          largestSpaces[0].append(freeStart)
-          largestSpaces[1].append([colNum - 1, rowNum])
-        freeLength = 0
-        freeStart = [colNum + 1, rowNum]
-    if freeLength == maxLength:
-      largestSpaces[0].append(freeStart)
-      largestSpaces[1].append([len(row) - 1, rowNum])
-    freeLength = 0
-
-  for colNum in range(0, len(usedMoves[0])):
-    freeStart = [colNum, 0]
-    for rowNum, row in enumerate(usedMoves):
-      col = row[colNum]
-      if col == "0":
-        freeLength += 1
-      else:
-        if freeLength == maxLength:
-          largestSpaces[0].append(freeStart)
-          largestSpaces[1].append([colNum, rowNum - 1])
-        freeLength = 0
-        freeStart = [colNum, rowNum + 1]
-    if freeLength == maxLength:
-      largestSpaces[0].append(freeStart)
-      largestSpaces[1].append([colNum, len(usedMoves) - 1])
-    freeLength = 0
-
-  i = random.randint(0, len(largestSpaces[0]) - 1)
-  target = [int((largestSpaces[0][i][0] + largestSpaces[1][i][0]) / 2), int((largestSpaces[0][i][1] + largestSpaces[1][i][1]) / 2)]
-
+  #Pick best target at random from candidates, to hide any patern that may form
+  target = optimalTargets[random.randint(0, len(optimalTargets) - 1)]
   return target
