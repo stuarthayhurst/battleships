@@ -298,6 +298,58 @@ class GameController:
 
     print(f"{winner} wins!")
 
+#Extra class to patch standard game, allowing an AI to play without an opponent
+class GameBenchmark(GameController):
+  #Setup the board
+  def __init__(self, pieceIdentifiers, pieceInfo):
+    super().__init__(pieceIdentifiers, pieceInfo)
+    self.setup(7, 7)
+    self.guesses = 0
+
+  #Only add one player
+  def addPlayers(self, player):
+    self.controllers[0] = player(self.pieceIdentifiers, self.pieceInfo, 1)
+    self.controllers[0].passHelpers(self.playerHelpers)
+
+  #Skip the opponents turn, track guesses
+  def start(self):
+    self.controllers[0].placeShips(self.grids[0])
+
+    while True:
+      self.guesses += 1
+      #Get next move from controller, using existing moves and remaining ships
+      move = self.controllers[0].nextMove(self.moves[0], self.getShips(self.grids))
+      #Update ship grid and made moves grids
+      self.placeMove(self.controllers[0], self.grids[0], self.moves[0], move, False)
+      #If the game is over, exit
+      if self.checkWinner(self.grids[0]):
+        break
+
+    return self.guesses
+
+#If benchmarking, use a patched game and exit early
+if len(sys.argv) > 1:
+  if sys.argv[1] == "--benchmark":
+    #Setup modified game
+    game = GameBenchmark(pieceIdentifiers, pieceInfo)
+    try:
+      runCount = int(sys.argv[2])
+    except:
+      print("Number of games to run is required")
+      exit(1)
+    totalGuesses = 0
+
+    #Run specified number of games
+    for i in range(runCount):
+      game.addPlayers(computer.Player)
+      totalGuesses += game.start()
+      game.reset()
+      game.guesses = 0
+
+    #Print AI performance data and exit
+    print(f"Average attempts: {totalGuesses / runCount}")
+    exit()
+
 #Create instance of the game logic
 game = GameController(pieceIdentifiers, pieceInfo)
 
