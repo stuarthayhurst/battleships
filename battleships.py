@@ -284,7 +284,7 @@ class GameController:
 
       #Wait for next player
       if delayHit:
-        input("\nPress any key to continue")
+        input("\nPress enter to continue")
 
       #Same as controller 1
       move = self.controllers[1].nextMove(self.moves[1], self.getShips(self.grids))
@@ -294,7 +294,7 @@ class GameController:
         break
 
       if delayHit:
-        input("\nPress any key to continue")
+        input("\nPress enter to continue")
 
     print(f"{winner} wins!")
 

@@ -13,7 +13,7 @@ class Player(controller.BaseController):
 
   def placeShips(self, grid):
     #Wait for input, to allow any players to swap
-    input(f"Player {self.playerNum}: \nPress any key to start placing ships:")
+    input(f"Player {self.playerNum}: \nPress enter to start placing ships:")
 
     #Fill the grids with ships
     for piece in self.pieceIdentifiers:
@@ -43,7 +43,7 @@ class Player(controller.BaseController):
 
     self.resetScreen()
     self.playerHelpers.drawGrid(grid)
-    input("Press any key to continue")
+    input("Press enter to continue")
 
   def nextMove(self, usedMoves, remainingShips):
     while True:
