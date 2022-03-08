@@ -12,6 +12,8 @@ class Player(controller.BaseController):
     self.followingDirection = False
     self.directionSwapped = False
 
+    self.impossibleTiles = [[], []]
+
   #Helper function to clear the screen and display player number
   def resetScreen(self):
     os.system("cls||clear")
@@ -22,6 +24,9 @@ class Player(controller.BaseController):
     return chr(coord + 96)
 
   def placeShips(self, grid):
+    #Create empty grid for help with AI
+    self.impossibleTiles = [["0" for x in range(len(grid[0]))] for i in range(len(grid))]
+
     #Fill the grids with ships
     for piece in self.pieceIdentifiers:
       placing = True
@@ -51,6 +56,15 @@ class Player(controller.BaseController):
 #If once a ship is sunk, go back to searching for ships
 #If the logic gets confused, fall back to searching
 #Use the middle of the largest continuous space as the guess
+
+    #If the last guess sank a ship, mark that no ship can be there anymore
+    if self.lastHit == [-1, -1] and self.lastGuess != [-2, -2]:
+      self.impossibleTiles[self.lastGuess[1]][self.lastGuess[0]] = "X"
+
+    #If last guess was a miss, mark as impossible
+    if self.lastHit != self.lastGuess:
+      if self.lastHit != [-1, -1] and self.lastGuess != [-2, -2]:
+        self.impossibleTiles[self.lastGuess[1]][self.lastGuess[0]] = "X"
 
     done = False
     #If there's a relevant hit to guess from, use it
@@ -133,20 +147,92 @@ class Player(controller.BaseController):
             continue
           else:
             self.lastDirection = guessDirection
-            self.lastGuess = [gridX, gridY]
             done = True
             break
 
-    #If the computer has no relevant hit to work from, or it failed, guess randomly
-    if not done:
-      self.lastDirection = -1
-      self.lastHit = [-1, -1]
-      self.lastGuess = [-2, -2]
-      self.followingDirection = False
-      self.directionSwapped = False
+    #If the AI made an educated guess, use it and exit
+    if done:
+      self.lastGuess = [x, y]
+      return [x, y]
 
-      #Find largest space
-      target = controller.cutGrid(usedMoves)
-      return target[0], target[1]
+    #Reset attributes related to tracking a ship
+    self.lastDirection = -1
+    self.lastHit = [-1, -1]
+    self.followingDirection = False
+    self.directionSwapped = False
+    x, y = 0, 0
 
+    #Create grid of impossible tiles and empty grid for probabilities
+    grid = self.impossibleTiles
+    probs = [[0 for x in range(len(grid[0]))] for i in range(len(grid))]
+
+    #Attempt to identify all possible locations for enemy pieces left
+    for ship in remainingShips[1 - self.playerNum]:
+      #Iterate over every grid position
+      for rowNum in range(len(grid)):
+        for colNum in range(len(grid[0])):
+          #And try the ship in both orientations
+          for flipped in [False, True]:
+
+            #Check if the ship would stay in the board
+            shipLength = self.pieceInfo[ship][1]
+            if not flipped:
+              if colNum + shipLength > len(grid[0]):
+                continue
+            else:
+              if rowNum + shipLength > len(grid):
+                continue
+
+            #Check if the ship would cross a position known to contain no live ships
+            failed = False
+            if not flipped:
+              for i in range(colNum, colNum + shipLength):
+                if grid[rowNum][i] == "X":
+                  failed = True
+                  break
+              if failed:
+                continue
+            else:
+              for i in range(rowNum, rowNum + shipLength):
+                if grid[i][colNum] == "X":
+                  failed = True
+                  break
+              if failed:
+                continue
+
+            #Increment the probability of a ship being in that tile, anywhere the ship would cross
+            if not flipped:
+              for i in range(colNum, colNum + shipLength):
+                prob = probs[rowNum][i] + 1
+                probs[rowNum][i] = prob
+            else:
+              for i in range(rowNum, rowNum + shipLength):
+                prob = probs[i][colNum] + 1
+                probs[i][colNum] = prob
+
+    #If the tile has already been guessed, set the probability to 0
+    for rowNum in range(len(probs)):
+      for colNum in range(len(probs[0])):
+        if usedMoves[rowNum][colNum] != "0":
+          probs[rowNum][colNum] = 0
+
+    #Find the highest probability of a ship being there
+    maxProb = 0
+    for row in probs:
+      for prob in row:
+        if prob > maxProb:
+          maxProb = prob
+
+    #Mark all high probability tiles with "X", set the rest to "0"
+    for rowNum in range(len(probs)):
+      for colNum in range(len(probs[0])):
+        if probs[rowNum][colNum] == maxProb:
+          probs[rowNum][colNum] = "0"
+        else:
+          probs[rowNum][colNum] = "X"
+
+    #Guess most efficient high probability tile
+    [x, y] = controller.cutGrid(probs)
+
+    self.lastGuess = [x, y]
     return [x, y]
