@@ -337,17 +337,24 @@ if len(sys.argv) > 1:
     except:
       print("Number of games to run is required")
       exit(1)
+
+    threshold = 38
     totalGuesses = 0
+    fails = 0
 
     #Run specified number of games
     for i in range(runCount):
       game.addPlayers(computer.Player)
       totalGuesses += game.start()
       game.reset()
+      if game.guesses >= threshold:
+        fails += 1
       game.guesses = 0
 
     #Print AI performance data and exit
+    failPercent = round(((fails / runCount) * 100), 1)
     print(f"Average attempts: {totalGuesses / runCount}")
+    print(f"{fails} games took more than {threshold} attempts ({failPercent}%)")
     exit()
 
 #Create instance of the game logic
