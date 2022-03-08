@@ -122,15 +122,6 @@ class Player(controller.BaseController):
 #Then figure out every possible ship location, using these impossible tiles as reference, and guess the tile with the highest probability of having a ship
 #Use the middle of the largest continuous space of high probability as the guess
 
-    #If the last guess sank a ship, mark that no ship can be there anymore
-    if self.lastHit == [-1, -1] and self.lastGuess != [-2, -2]:
-      self.impossibleTiles[self.lastGuess[1]][self.lastGuess[0]] = "X"
-
-    #If last guess was a miss, mark as impossible
-    if self.lastHit != self.lastGuess:
-      if self.lastHit != [-1, -1] and self.lastGuess != [-2, -2]:
-        self.impossibleTiles[self.lastGuess[1]][self.lastGuess[0]] = "X"
-
     done = False
     #If there's a relevant hit to guess from, use it
     if self.lastHit != [-1, -1]:
@@ -213,6 +204,15 @@ class Player(controller.BaseController):
             self.lastDirection = guessDirection
             done = True
             break
+
+    #If the last guess sank a ship, mark that no ship can be there anymore
+    if self.lastHit == [-1, -1] and self.lastGuess != [-2, -2]:
+      self.impossibleTiles[self.lastGuess[1]][self.lastGuess[0]] = "X"
+
+    #If last guess was a miss, mark as impossible
+    if self.lastHit != self.lastGuess:
+      if self.lastHit != [-1, -1] and self.lastGuess != [-2, -2]:
+        self.impossibleTiles[self.lastGuess[1]][self.lastGuess[0]] = "X"
 
     #If the AI made an educated guess, use it and exit
     if done:
