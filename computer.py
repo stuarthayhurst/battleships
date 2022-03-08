@@ -44,6 +44,66 @@ class Player(controller.BaseController):
         if self.playerHelpers.placePiece(grid, piece, flipped, position, False):
           placing = False
 
+  def getFreeSpace(self, x, y, usedMoves):
+    free = True
+    freeCount = 1
+
+    #Find free space after it on the same row
+    for i in range(x + 1, len(usedMoves[0])):
+      tile = usedMoves[y][i]
+      if tile == "0":
+        freeCount += 1
+      else:
+        break
+
+    #Find free space before it on the same row
+    for i in range(x - 1, -1, -1):
+      tile = usedMoves[y][i]
+      if tile == "0":
+        freeCount += 1
+      else:
+        break
+
+    #Find free space after it on the same column
+    for i in range(y + 1, len(usedMoves)):
+      tile = usedMoves[i][x]
+      if tile == "0":
+        freeCount += 1
+      else:
+        break
+
+    #Find free space before it on the same column
+    for i in range(y - 1, -1, -1):
+      tile = usedMoves[i][x]
+      if tile == "0":
+        freeCount += 1
+      else:
+        break
+
+    return freeCount
+
+  def cutGrid(self, usedMoves):
+    optimalLength = 0
+    optimalTargets = []
+
+    #Identify the largest free spaces
+    for rowNum in range(0, len(usedMoves)):
+      for colNum in range(0, len(usedMoves[0])):
+        if usedMoves[rowNum][colNum] == "0":
+          #Get number of free spaces in line with the coord
+          freeLength = self.getFreeSpace(colNum, rowNum, usedMoves)
+          #If it's equivalent to the best target, remember it
+          if freeLength == optimalLength:
+            optimalTargets.append([colNum, rowNum])
+          #If it's better than the old best target, forget all remembered coords and remember this one
+          elif freeLength > optimalLength:
+            optimalLength = freeLength
+            optimalTargets = [[colNum, rowNum]]
+
+    #Pick best target at random from candidates, to hide any patern that may form
+    target = optimalTargets[random.randint(0, len(optimalTargets) - 1)]
+    return target
+
   def nextMove(self, usedMoves, remainingShips):
     self.resetScreen()
     self.playerHelpers.printShips(remainingShips)
@@ -232,7 +292,7 @@ class Player(controller.BaseController):
           probs[rowNum][colNum] = "X"
 
     #Guess most efficient high probability tile
-    [x, y] = controller.cutGrid(probs)
+    [x, y] = self.cutGrid(probs)
 
     self.lastGuess = [x, y]
     return [x, y]
