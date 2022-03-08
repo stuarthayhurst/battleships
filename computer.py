@@ -117,7 +117,9 @@ class Player(controller.BaseController):
 #If the the AI didn't sink the ship and can't find a new location, fall back to searching (happens when shooting at 2 ships at once)
 
 #When searching for a ship:
-#Figure out every possible ship location, and guess the tile with the highest probability of having a ship
+#When all hit tiles are accounted for with downed ships, those hits can be guaranteed to have no live ship on
+#These can be made impossible, along with the hits that sank ships, and empty tiles
+#Then figure out every possible ship location, using these impossible tiles as reference, and guess the tile with the highest probability of having a ship
 #Use the middle of the largest continuous space of high probability as the guess
 
     #If the last guess sank a ship, mark that no ship can be there anymore
@@ -228,6 +230,25 @@ class Player(controller.BaseController):
     grid = self.impossibleTiles
     probs = [[0 for x in range(len(grid[0]))] for i in range(len(grid))]
 
+    sunkTiles = 0
+    for ship in self.pieceIdentifiers:
+      if ship not in remainingShips[1 - self.playerNum]:
+        sunkTiles += self.pieceInfo[ship][1]
+
+    hitTiles = 0
+    for row in usedMoves:
+      for col in row:
+        if col == "X":
+          hitTiles += 1
+
+    #If all hit tiles are accounted for with a downed ship, mark hit tiles as impossible
+    if sunkTiles == hitTiles:
+      for rowNum in range(len(usedMoves)):
+        for colNum in range(len(usedMoves[0])):
+          if usedMoves[rowNum][colNum] == "X":
+            #Mark impossible tiles (2D array, Python shares it with grid, so only 1 needs updating)
+            self.impossibleTiles[rowNum][colNum] = "X"
+
     #Attempt to identify all possible locations for enemy pieces left
     for ship in remainingShips[1 - self.playerNum]:
       #Iterate over every grid position
@@ -235,7 +256,6 @@ class Player(controller.BaseController):
         for colNum in range(len(grid[0])):
           #And try the ship in both orientations
           for flipped in [False, True]:
-
             #Check if the ship would stay in the board
             shipLength = self.pieceInfo[ship][1]
             if not flipped:
