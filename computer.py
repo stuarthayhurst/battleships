@@ -113,9 +113,12 @@ class Player(controller.BaseController):
 # Swap the order of locations guessed around it, to prevent players figuring out a strategy
 #If any of these hit, follow in the same direction
 #If it reaches the end of a ship, try the other end
-#If once a ship is sunk, go back to searching for ships
-#If the logic gets confused, fall back to searching
-#Use the middle of the largest continuous space as the guess
+#Once a ship is sunk, go back to searching for ships
+#If the the AI didn't sink the ship and can't find a new location, fall back to searching (happens when shooting at 2 ships at once)
+
+#When searching for a ship:
+#Figure out every possible ship location, and guess the tile with the highest probability of having a ship
+#Use the middle of the largest continuous space of high probability as the guess
 
     #If the last guess sank a ship, mark that no ship can be there anymore
     if self.lastHit == [-1, -1] and self.lastGuess != [-2, -2]:
@@ -190,7 +193,6 @@ class Player(controller.BaseController):
           #Check that position hasn't already been used
           if usedMoves[gridY][gridX] == "X":
             #If they were already used, try another direction
-
             if directionSwapped:
               continue
 
