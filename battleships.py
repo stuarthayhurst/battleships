@@ -363,7 +363,7 @@ while True:
   os.system("cls || clear")
   print("1: Player vs player")
   print("2: Player vs computer")
-  print("3: Computer vs smart computer")
+  print("3: Random shots vs computer")
   try:
     gamemode = int(input("Select a gamemode (1-3): "))
     if gamemode < 1 or gamemode > 3:
