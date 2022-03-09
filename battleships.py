@@ -347,7 +347,7 @@ if len(sys.argv) > 1:
       game.addPlayers(computer.Player)
       totalGuesses += game.start()
       game.reset()
-      if game.guesses >= threshold:
+      if game.guesses > threshold:
         fails += 1
       game.guesses = 0
 
