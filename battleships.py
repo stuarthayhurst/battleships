@@ -108,7 +108,7 @@ class PlayerHelpers:
 
     return True
 
-  #Print the passed grid, hiding any ships if specified
+  #Print the passed grid
   def drawGrid(self, grid):
     #Print a line of text with the given colour
     def printColour(text, colour):
@@ -154,7 +154,7 @@ class PlayerHelpers:
     print()
 
   def printShips(self, remainingShips):
-    #Print the reamining ships
+    #Print the remaining ships
     for playerNum, playerShips in enumerate(remainingShips):
       print(f" Player {playerNum + 1}'s ships:", end = "")
       for ship in playerShips:
