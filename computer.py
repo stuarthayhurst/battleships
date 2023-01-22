@@ -16,7 +16,7 @@ class Player(controller.BaseController):
 
   #Helper function to clear the screen and display player number
   def resetScreen(self):
-    os.system("cls||clear")
+    os.system("clear")
     print(f"Player {self.playerNum}: (computer)")
 
   def intToRef(self, coord):

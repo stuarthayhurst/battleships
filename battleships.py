@@ -267,9 +267,9 @@ class GameController:
     #Start game timer
     self.startTime = time.time()
 
-    os.system("cls||clear")
+    os.system("clear")
     self.controllers[0].placeShips(self.grids[0])
-    os.system("cls||clear")
+    os.system("clear")
     self.controllers[1].placeShips(self.grids[1])
 
     while True:
