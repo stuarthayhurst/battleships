@@ -26,7 +26,6 @@ def placePiece(grid, length, x, y, flipped):
 
   return newGrid, True
 
-n = 0
 def compute(validShips, grid):
   global n
   if len(validShips) == 0:
@@ -52,6 +51,7 @@ def compute(validShips, grid):
             if success:
               compute(newValidShips, newBoard)
 
+n = 0
 initialValidShips = [i for i in range(len(shipData))]
 grid = [[0 for i in range(boardSize)] for j in range(boardSize)]
 compute(initialValidShips, grid)
