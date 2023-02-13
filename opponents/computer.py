@@ -216,38 +216,93 @@ class Opponent():
           for row in range(lastY, lastY + shipLength):
             self.opponentGrid[row][lastX] = 2
 
+    #Recursively check connected hit tiles for a sunk tile
+    def checkHit(grid, seenHits, position):
+      #print(f"trying ({position=})") DEBUG
+      if grid[position[1]][position[0]] == 2:
+        #print(f"sent fail ({position=})") DEBUG
+        return "fail"
+
+      if position in seenHits:
+        #print(f"already seen ({position=})") DEBUG
+        return "seen"
+
+      if grid[position[1]][position[0]] != 1:
+        return "nohit"
+
+      seenHits.append(position)
+
+      positions = [
+        [position[0] - 1, position[1]],
+        [position[0] + 1, position[1]],
+        [position[0], position[1] - 1],
+        [position[0], position[1] + 1]
+      ]
+
+      path = [position]
+      for newPosition in positions:
+        if newPosition[0] < 0 or newPosition[0] > 6:
+          continue
+        if newPosition[1] < 0 or newPosition[1] > 6:
+          continue
+
+        value = checkHit(grid, seenHits, newPosition)
+        if value == "fail":
+          return "fail"
+        elif value == "nohit":
+          pass
+        elif value == "seen":
+          pass
+        else:
+          path += value
+#TODO cleanup
+
+      return path
+
+#TODO debug on return later - maybe keep?
+
+#TODO add number 3 as a marker for ships directly reported as sunk
+#Use this for checking groups
+#Remove debug comments
+
+    #Identify any unsunk patch of ships (when hits touch eachother, with no sunk tiles)
+    path = []
     self.loneHits = []
-    #Identify any lone hits
     for rowNum in range(len(self.opponentGrid)):
       for colNum in range(len(self.opponentGrid)):
         if self.opponentGrid[rowNum][colNum] == 1:
-          failed = False
-          #Iterate around the hit
-          for nestedRow in [rowNum - 1, rowNum, rowNum + 1]:
-            if nestedRow < 0 or nestedRow > 6:
-              continue
-            for nestedCol in [colNum - 1, colNum, colNum + 1]:
-              if nestedCol < 0 or nestedCol > 6:
-                continue
+          seenHits = []
+          #print(f"dispatch ({[colNum, rowNum]=})") DEBUG
+          value = checkHit(self.opponentGrid, seenHits, [colNum, rowNum])
+          if value != "seen" and value != "fail":
+            path += value
+            #print(f"kept ({[colNum, rowNum]=})") DEBUG
+          elif value == "fail": #TODO cleanup
+            pass
+            #print(f"discarded ({[colNum, rowNum]=})") DEBUG
+          elif value == "seen":
+            pass
+            #print(f"seen ({[colNum, rowNum]=})") DEBUG
+    self.loneHits = path
 
-              #Skip the exact hit
-              if colNum == nestedCol and rowNum == nestedRow:
-                continue
+    temp = []
+    for hit in self.loneHits:
+      if hit not in temp:
+        temp.append(hit)
+    self.loneHits = temp
 
-              #If a location around the original hit has been hit, it's not lone
-              if self.opponentGrid[nestedRow][nestedCol] > 0:
-                failed = True
+#TODO debug
+    if len(self.loneHits) != 0 and False:
+      print(self.loneHits)
+      for row in self.opponentGrid:
+        print(row)
 
-          #Save the lone hit
-          if not failed:
-            self.loneHits.append([colNum, rowNum])
+#rename lone ships #TODO
 
-#TODO Tag on to previous system - any continuous set of hits that doesn't touch a sunk ship should be set as 'lone' - rename lone
+#TODO this sucks - it works, but hardly fires
+#Revisit after 3 identifier work - probably nothing changed
 
-#Push and finish on laptop
-
-#TODO - works, but not very helpful (might get better)
-    #Detect when all ships except lone ships are sunk
+    #Detect when all ships except known unsunk ships are sunk
     if hitsMade - len(self.loneHits) == sunkTiles and len(self.loneHits) > 0:
       for rowNum in range(len(self.opponentGrid)):
         for colNum in range(len(self.opponentGrid)):
@@ -259,7 +314,7 @@ class Opponent():
                 break
 
             if not failed:
-              print("triggered") #DEBUG
+              print("triggered") #TODO debug
               self.opponentGrid[rowNum][colNum] = 2
 
   def makeMove(self):
@@ -385,6 +440,9 @@ class Opponent():
     [x, y] = self.cutGrid(probs)
 
     self.lastMove = [x, y]
+    if self.opponentGrid[y][x] != 0:
+      input("FAIL")
+#TODO
     return [x, y]
 
 
