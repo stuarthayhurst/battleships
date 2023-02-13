@@ -16,5 +16,5 @@ class Opponent:
     self.opponentGrid[y][x] = 1
     return [x, y]
 
-  def feedbackMove(self, wasHit, didSink):
+  def feedbackMove(self, wasHit, didSink, destroyedShip):
     pass

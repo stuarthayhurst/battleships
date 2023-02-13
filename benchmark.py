@@ -28,17 +28,20 @@ for sample in range(sampleSize):
     currentGuesses += 1
 
     didSink = False
+    destroyedShip = None
     didHit = remainingShips[guess[1]][guess[0]] == 1
     if didHit:
       #Check for a destroyed ship
       identifier = shipMarkers[guess[1]][guess[0]]
       shipMarkers[guess[1]][guess[0]] = 0
       didSink = not gameHelper.searchGrid(shipMarkers, identifier)
+      if didSink:
+        destroyedShip = identifier
 
       #Mark off hit
       remainingShips[guess[1]][guess[0]] = 0
       currentHits += 1
-    controller.feedbackMove(didHit, didSink)
+    controller.feedbackMove(didHit, didSink, destroyedShip)
 
   totalGuesses += currentGuesses
 
