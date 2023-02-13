@@ -1,73 +1,395 @@
 #!/usr/bin/python3
 
+import random
+
 #Info:
 # -  0 : unguessed
 # - -1 : miss
 # -  1 : hit
 # -  2 : destroyed ship
 
+#TODO: update this
+#If the last hit was successful, try guessing around it in a circle
+# Swap the order of locations guessed around it, to prevent players figuring out a strategy
+#If any of these hit, follow in the same direction
+#If it reaches the end of a ship, try the other end
+#Once a ship is sunk, go back to searching for ships
+#If the the AI didn't sink the ship and can't find a new location, fall back to searching (happens when shooting at 2 ships at once)
+
+#When searching for a ship:
+#When all hit tiles are accounted for with downed ships, those hits can be guaranteed to have no live ship on
+#These can be made impossible, along with the hits that sank ships, and empty tiles
+#Then figure out every possible ship location, using these impossible tiles as reference, and guess the tile with the highest probability of having a ship
+#Use the middle of the largest continuous space of high probability as the guess
+
 class Opponent():
   def __init__(self):
     self.opponentGrid = [[0 for i in range(7)] for j in range(7)]
     self.lastMove = [None, None]
+    self.lastHit = [None, None]
+    self.loneHits = []
 
-  def makeMove(self):
+    self.shipInfo = {"c": 5, "b": 4, "d": 3, "s": 3, "p": 2}
+    self.remainingIdentifiers = list(self.shipInfo.keys())
 
-    x, y = None, None
+#TODO: any hit streak (including single hits) that doesn't hit a sunk ship at some point can be marked as an unsunk ship
 
-    self.lastMove = [x, y]
-    pass
+#TODO: logic to target any definitely unsunk hits
+#TODO: then fix logic to follow a thread (might not need - but could be good at keep trying to hit a ship until it gets a new sunk marker)
 
-  def feedbackMove(self, wasHit, didSink):
+#TODO: improve cut grid and getFreeSpace code
+#TODO: - Update this logic to split a section in min turns (straddle centre), benchmark
+
+#TODO: rewrite algorithm overview
+# - Add a copy to the readme
+# - In the readme, mention the performance improvements from using pypy3
+# - Document each subproject
+
+#TODO: clean up code and comment
+#TODO: - before i do this, get code into a commitable state
+
+#TODO:
+#Battleships (non-coursework)
+# - Get ready to add neural network and open-source
+# - Do second edge-case sunk ship detection first, and only check for unresolved hits
+
+#If all ships have been hit, require guesses to aim for ships passing through an unresolved hit
+#If guaranteed unsunk ships remain, boost the probability for ships passing through this (experiment with coefficient)
+
+#TODO: - rewrite this, neaten up and move other plans to list at top of doc
+# - Maths to decide if all ships have been hit, and if true then all guessed locations must be aiming for a ship intersecting a previous non-sunk hit
+# - Lean more on probability distribution
+# - Grid splitting should plan ahead, depending on the size of ship it's looking for
+
+#When a ship has sunk, mark all tiles of that ship as sunk, if possible
+
+#Attempt to identify when a ship has been hit and not sunk
+
+  def feedbackMove(self, wasHit, didSink, destroyedShip):
     marker = -1
     if didSink:
       marker = 2
     elif wasHit:
       marker = 1
 
+    #Update the last successful hit and known data
+    if wasHit:
+      self.lastHit = [self.lastMove[0], self.lastMove[1]]
     self.opponentGrid[self.lastMove[1]][self.lastMove[0]] = marker
 
-class Player(controller.BaseController):
-  def __init__(self, pieceIdentifiers, pieceInfo, playerNum):
-    super().__init__(pieceIdentifiers, pieceInfo, playerNum)
-    self.isComputer = True
-    self.lastHit = [-1, -1]
-    self.lastGuess = [-2, -2]
-    self.lastDirection = -1
-    self.followingDirection = False
-    self.directionSwapped = False
+    #Remove destroyed ship from remaining ships
+    if destroyedShip != None:
+      for i in range(len(self.remainingIdentifiers)):
+        if self.remainingIdentifiers[i] == destroyedShip:
+          self.remainingIdentifiers.pop(i)
+          break
 
-    self.impossibleTiles = [[], []]
+    sunkTiles = 17
+    for identifier in self.remainingIdentifiers:
+      sunkTiles -= self.shipInfo[identifier]
 
-  #Helper function to clear the screen and display player number
-  def resetScreen(self):
-    os.system("clear")
-    print(f"Player {self.playerNum}: (computer)")
+    hitsMade = 0
+    for row in self.opponentGrid:
+      for col in row:
+        if col > 0:
+          hitsMade += 1
 
-  def intToRef(self, coord):
-    #Convert coord to alphabetical grid reference
-    return chr(coord + 96)
+    #If all hits are on destroyed ships, mark them as such
+    if hitsMade == sunkTiles:
+      for col in range(7):
+        for row in range(7):
+          if self.opponentGrid[col][row] == 1:
+            self.opponentGrid[col][row] = 2
 
-  def placeShips(self, grid):
-    #Create empty grid for help with AI
-    self.impossibleTiles = [["0" for x in range(len(grid[0]))] for i in range(len(grid))]
+    if didSink:
+      streak = False
+      intersects = False
+      horizStreak = 0
+      streakLength = 0
+      streakPos = [None, None]
+      for col in range(7):
+        if self.opponentGrid[self.lastMove[1]][col] == 1 or col == self.lastMove[0]:
+          if not streak:
+            streak = True
+            streakLength = 0
+            streakPos[0] = col
 
-    #Fill the grids with ships
-    for piece in self.pieceIdentifiers:
-      placing = True
+          if col == self.lastMove[0]:
+            intersects = True
+          streakLength += 1
+        else:
+          #Streak broken
+          if intersects:
+            horizStreak = streakLength
+            streakPos[1] = col - 1
+          intersects = False
+          streakLength = 0
+          streak = False
+      if intersects:
+        horizStreak = streakLength
+        streakPos[1] = 6
 
-      print(f"Placing {self.pieceInfo[piece][0]}")
+      horizPos = [streakPos[0], streakPos[1]]
 
-      #Keep trying to place until it succeeds
-      while placing:
-        flipped = bool(random.randint(0, 1))
+      streak = False
+      intersects = False
+      vertStreak = 0
+      streakLength = 0
+      streakPos = [None, None]
+      for row in range(7):
+        if self.opponentGrid[row][self.lastMove[0]] == 1 or row == self.lastMove[1]:
+          if not streak:
+            streak = True
+            streakLength = 0
+            streakPos[0] = row
 
-        xCoord = self.intToRef(random.randint(1, len(grid[0])))
-        position = f"{xCoord}, {random.randint(1, len(grid))}"
+          if row == self.lastMove[1]:
+            intersects = True
+          streakLength += 1
+        else:
+          #Streak broken
+          if intersects:
+            vertStreak = streakLength
+            streakPos[1] = row - 1
+          intersects = False
+          streakLength = 0
+          streak = False
+      if intersects:
+        vertStreak = streakLength
+        streakPos[1] = 6
 
-        #Attempt to place the piece
-        if self.playerHelpers.placePiece(grid, piece, flipped, position, False):
-          placing = False
+      vertPos = [streakPos[0], streakPos[1]]
+
+      if vertStreak != horizStreak:
+        streakDirection = "horizontal"
+        if vertStreak > horizStreak:
+          streakDirection = "vertical"
+          finalLength = vertStreak
+        else:
+          finalLength = horizStreak
+
+        if finalLength == self.shipInfo[destroyedShip]:
+          if streakDirection == "horizontal":
+            for col in range(horizPos[0], horizPos[1] + 1):
+              self.opponentGrid[self.lastMove[1]][col] = 2
+          else:
+            for row in range(vertPos[0], vertPos[1] + 1):
+              self.opponentGrid[row][self.lastMove[0]] = 2
+
+      #Attempt to identify any ships sunk on their end, and mark ship as sunk from the end using their length
+      lastX, lastY = self.lastMove[0], self.lastMove[1]
+      clearLeft, clearRight, clearAbove, clearBelow = False, False, False, False
+      unclearDirection = ""
+      unclearCount = 0
+      if lastX > 0:
+        if self.opponentGrid[self.lastMove[1]][lastX - 1] > 0:
+          unclearDirection = "left"
+          unclearCount += 1
+
+      if lastX < 6:
+        if self.opponentGrid[self.lastMove[1]][lastX + 1] > 0:
+          unclearDirection = "right"
+          unclearCount += 1
+
+      if lastY > 0:
+        if self.opponentGrid[lastY - 1][self.lastMove[0]] > 0:
+          unclearDirection = "above"
+          unclearCount += 1
+
+      if lastY < 6:
+        if self.opponentGrid[lastY + 1][self.lastMove[0]] > 0:
+          unclearDirection = "below"
+          unclearCount += 1
+
+      if unclearCount == 1:
+        shipLength = self.shipInfo[destroyedShip]
+        if unclearDirection == "left":
+          for col in range((lastX + 1) - shipLength, lastX + 1):
+            self.opponentGrid[lastY][col] = 2
+        elif unclearDirection == "right":
+          for col in range(lastX, lastX + shipLength):
+            self.opponentGrid[lastY][col] = 2
+        elif unclearDirection == "above":
+          for row in range((lastY + 1) - shipLength, lastY + 1):
+            self.opponentGrid[row][lastX] = 2
+        elif unclearDirection == "below":
+          for row in range(lastY, lastY + shipLength):
+            self.opponentGrid[row][lastX] = 2
+
+    self.loneHits = []
+    #Identify any lone hits
+    for rowNum in range(len(self.opponentGrid)):
+      for colNum in range(len(self.opponentGrid)):
+        if self.opponentGrid[rowNum][colNum] == 1:
+          failed = False
+          #Iterate around the hit
+          for nestedRow in [rowNum - 1, rowNum, rowNum + 1]:
+            if nestedRow < 0 or nestedRow > 6:
+              continue
+            for nestedCol in [colNum - 1, colNum, colNum + 1]:
+              if nestedCol < 0 or nestedCol > 6:
+                continue
+
+              #Skip the exact hit
+              if colNum == nestedCol and rowNum == nestedRow:
+                continue
+
+              #If a location around the original hit has been hit, it's not lone
+              if self.opponentGrid[nestedRow][nestedCol] > 0:
+                failed = True
+
+          #Save the lone hit
+          if not failed:
+            self.loneHits.append([colNum, rowNum])
+
+#TODO Tag on to previous system - any continuous set of hits that doesn't touch a sunk ship should be set as 'lone' - rename lone
+
+#Push and finish on laptop
+
+#TODO - works, but not very helpful (might get better)
+    #Detect when all ships except lone ships are sunk
+    if hitsMade - len(self.loneHits) == sunkTiles and len(self.loneHits) > 0:
+      for rowNum in range(len(self.opponentGrid)):
+        for colNum in range(len(self.opponentGrid)):
+          if self.opponentGrid[rowNum][colNum] == 1:
+            failed = False
+            for loneHit in self.loneHits:
+              if colNum == loneHit[0] and rowNum == loneHit[1]:
+                failed = True
+                break
+
+            if not failed:
+              print("triggered") #DEBUG
+              self.opponentGrid[rowNum][colNum] = 2
+
+  def makeMove(self):
+    #Create grid of impossible tiles and empty grid for probabilities
+    grid = self.opponentGrid
+    probs = [[0 for i in range(7)] for j in range(7)]
+
+    #If one ship remains and has been hit, any guess must be aiming for a ship that intersects a ship
+    mustIntersect = False
+    if len(self.remainingIdentifiers) == 1:
+      hitsMade = 0
+      for row in self.opponentGrid:
+        for col in row:
+          if col > 0:
+            hitsMade += 1
+
+      if hitsMade > 17 - self.shipInfo[self.remainingIdentifiers[0]]:
+        mustIntersect = True
+
+    #If a lone ship is present, any ship must intersect it
+    mustIntersectLone = False
+    if len(self.loneHits) != 0:
+      mustIntersectLone = True
+
+    #Attempt to identify all possible locations for enemy pieces left
+    for ship in self.remainingIdentifiers:
+      shipLength = self.shipInfo[ship]
+      reducedLength = len(grid) - (shipLength - 1)
+
+      #Try both rotations of a ship
+      for flipped in [False, True]:
+        rowMax = len(grid)
+        colMax = reducedLength
+        if flipped:
+          rowMax = reducedLength
+          colMax = len(grid)
+
+        #Iterate over every grid position
+        for rowNum in range(rowMax):
+          for colNum in range(colMax):
+            #Check if the ship would cross a position known to contain no live ships
+            failed = False
+            if not flipped:
+              for i in range(colNum, colNum + shipLength):
+                if grid[rowNum][i] == 2 or grid[rowNum][i] == -1:
+                  failed = True
+                  break
+              if failed:
+                continue
+            else:
+              for i in range(rowNum, rowNum + shipLength):
+                if grid[i][colNum] == 2 or grid[i][colNum] == -1:
+                  failed = True
+                  break
+              if failed:
+                continue
+
+            #If a lone hit is present, possible ships must intersect
+            if mustIntersectLone:
+              passed = False
+              if not flipped:
+                for i in range(colNum, colNum + shipLength):
+                  for loneHit in self.loneHits:
+                    if loneHit[0] == i and loneHit[1] == rowNum:
+                      passed = True
+                if not passed:
+                  continue
+              else:
+                for i in range(rowNum, rowNum + shipLength):
+                  for loneHit in self.loneHits:
+                    if loneHit[0] == colNum and loneHit[1] == i:
+                      passed = True
+                if not passed:
+                  continue
+
+            if mustIntersect:
+              passed = False
+              if not flipped:
+                for i in range(colNum, colNum + shipLength):
+                  if grid[rowNum][i] == 1:
+                    passed = True
+                if not passed:
+                  continue
+              else:
+                for i in range(rowNum, rowNum + shipLength):
+                  if grid[i][colNum] == 1:
+                    passed = True
+                if not passed:
+                  continue
+
+            #Increment the probability of a ship being in that tile, anywhere the ship would cross
+            if not flipped:
+              for i in range(colNum, colNum + shipLength):
+                prob = probs[rowNum][i] + 1
+                probs[rowNum][i] = prob
+            else:
+              for i in range(rowNum, rowNum + shipLength):
+                prob = probs[i][colNum] + 1
+                probs[i][colNum] = prob
+
+    #If the tile has already been guessed, set the probability to 0
+    for rowNum in range(len(probs)):
+      for colNum in range(len(probs[0])):
+        if grid[rowNum][colNum] != 0:
+          probs[rowNum][colNum] = 0
+
+    #Find the highest probability of a ship being there
+    maxProb = 0
+    for row in probs:
+      for prob in row:
+        if prob > maxProb:
+          maxProb = prob
+
+    #Mark all high probability tiles with "X", set the rest to "0"
+    for rowNum in range(len(probs)):
+      for colNum in range(len(probs[0])):
+        if probs[rowNum][colNum] == maxProb:
+          probs[rowNum][colNum] = "0"
+        else:
+          probs[rowNum][colNum] = "X"
+
+    #Guess most efficient high probability tile
+    [x, y] = self.cutGrid(probs)
+
+    self.lastMove = [x, y]
+    return [x, y]
+
+
+
+
 
   def getFreeSpace(self, x, y, usedMoves):
     free = True
@@ -128,218 +450,3 @@ class Player(controller.BaseController):
     #Pick best target at random from candidates, to hide any patern that may form
     target = optimalTargets[random.randint(0, len(optimalTargets) - 1)]
     return target
-
-  def nextMove(self, usedMoves, remainingShips):
-    self.resetScreen()
-    self.playerHelpers.printShips(remainingShips)
-    self.playerHelpers.drawGrid(usedMoves)
-
-#If the last hit was successful, try guessing around it in a circle
-# Swap the order of locations guessed around it, to prevent players figuring out a strategy
-#If any of these hit, follow in the same direction
-#If it reaches the end of a ship, try the other end
-#Once a ship is sunk, go back to searching for ships
-#If the the AI didn't sink the ship and can't find a new location, fall back to searching (happens when shooting at 2 ships at once)
-
-#When searching for a ship:
-#When all hit tiles are accounted for with downed ships, those hits can be guaranteed to have no live ship on
-#These can be made impossible, along with the hits that sank ships, and empty tiles
-#Then figure out every possible ship location, using these impossible tiles as reference, and guess the tile with the highest probability of having a ship
-#Use the middle of the largest continuous space of high probability as the guess
-
-    done = False
-    #If there's a relevant hit to guess from, use it
-    if self.lastHit != [-1, -1]:
-      #Guess around the last hit, following the same direction if possible
-      if random.randint(0, 1) == 0:
-        directions = range(4)
-      else:
-        directions = [1, 0, 3, 2]
-
-      if self.lastDirection != -1:
-        #If the last guess was actually a hit, keep going that direction
-        if self.lastGuess == self.lastHit:
-          self.followingDirection = True
-          directions = [self.lastDirection] + list(directions)
-        elif self.followingDirection:
-          directions = [(self.lastDirection + 2) % 4] + list(directions)
-          self.directionSwapped = True
-
-      for guessDirection in directions:
-        #If computer is happy with the guess, finish
-        if done:
-          break
-
-        movingDirection = True
-        directionSwapped = self.directionSwapped
-        while movingDirection:
-          #Select the next grid space in the current direction
-          move = self.lastHit
-          try:
-            if directionSwapped:
-              move = [gridX, gridY]
-          except UnboundLocalError:
-            move = self.lastHit
-
-          if guessDirection == 0:
-            gridX, gridY = move[0], move[1] - 1
-          elif guessDirection == 1:
-            gridX, gridY = move[0] + 1, move[1]
-          elif guessDirection == 2:
-            gridX, gridY = move[0], move[1] + 1
-          elif guessDirection == 3:
-            gridX, gridY = move[0] - 1, move[1]
-
-          #Convert grid coords to display coords
-          x = self.intToRef(gridX + 1)
-          y = gridY + 1
-          position = f"{x}, {y}"
-          x, y = self.playerHelpers.inputToReference(position, usedMoves, False)
-
-          #Check coords were valid
-          if x == None:
-            #If it was following a direction, go the other way
-            if not directionSwapped and self.followingDirection:
-              guessDirection += 2
-              guessDirection = guessDirection % 4
-              directionSwapped = True
-            else:
-              movingDirection = False
-
-            continue
-
-          #Check that position hasn't already been used
-          if usedMoves[gridY][gridX] == "X":
-            #If they were already used, try another direction
-            if directionSwapped:
-              continue
-
-          #Check that position hasn't already been used
-          if usedMoves[gridY][gridX] != "0":
-            #If it was following a direction, go the other way
-            if not directionSwapped and self.followingDirection:
-              guessDirection += 2
-              guessDirection = guessDirection % 4
-              directionSwapped = True
-            else:
-              movingDirection = False
-
-            continue
-          else:
-            self.lastDirection = guessDirection
-            done = True
-            break
-
-    #If the last guess sank a ship, mark that no ship can be there anymore
-    if self.lastHit == [-1, -1] and self.lastGuess != [-2, -2]:
-      self.impossibleTiles[self.lastGuess[1]][self.lastGuess[0]] = "X"
-
-    #If last guess was a miss, mark as impossible
-    if self.lastHit != self.lastGuess:
-      if self.lastHit != [-1, -1] and self.lastGuess != [-2, -2]:
-        self.impossibleTiles[self.lastGuess[1]][self.lastGuess[0]] = "X"
-
-    #If the AI made an educated guess, use it and exit
-    if done:
-      self.lastGuess = [x, y]
-      return [x, y]
-
-    #Reset attributes related to tracking a ship
-    self.lastDirection = -1
-    self.lastHit = [-1, -1]
-    self.followingDirection = False
-    self.directionSwapped = False
-    x, y = 0, 0
-
-    #Create grid of impossible tiles and empty grid for probabilities
-    grid = self.impossibleTiles
-    probs = [[0 for x in range(len(grid[0]))] for i in range(len(grid))]
-
-    sunkTiles = 0
-    for ship in self.pieceIdentifiers:
-      if ship not in remainingShips[1 - self.playerNum]:
-        sunkTiles += self.pieceInfo[ship][1]
-
-    hitTiles = 0
-    for row in usedMoves:
-      for col in row:
-        if col == "X":
-          hitTiles += 1
-
-    #If all hit tiles are accounted for with a downed ship, mark hit tiles as impossible
-    if sunkTiles == hitTiles:
-      for rowNum in range(len(usedMoves)):
-        for colNum in range(len(usedMoves[0])):
-          if usedMoves[rowNum][colNum] == "X":
-            #Mark impossible tiles (2D array, Python shares it with grid, so only 1 needs updating)
-            self.impossibleTiles[rowNum][colNum] = "X"
-
-    #Attempt to identify all possible locations for enemy pieces left
-    for ship in remainingShips[1 - self.playerNum]:
-      #Iterate over every grid position
-      for rowNum in range(len(grid)):
-        for colNum in range(len(grid[0])):
-          #And try the ship in both orientations
-          for flipped in [False, True]:
-            #Check if the ship would stay in the board
-            shipLength = self.pieceInfo[ship][1]
-            if not flipped:
-              if colNum + shipLength > len(grid[0]):
-                continue
-            else:
-              if rowNum + shipLength > len(grid):
-                continue
-
-            #Check if the ship would cross a position known to contain no live ships
-            failed = False
-            if not flipped:
-              for i in range(colNum, colNum + shipLength):
-                if grid[rowNum][i] == "X":
-                  failed = True
-                  break
-              if failed:
-                continue
-            else:
-              for i in range(rowNum, rowNum + shipLength):
-                if grid[i][colNum] == "X":
-                  failed = True
-                  break
-              if failed:
-                continue
-
-            #Increment the probability of a ship being in that tile, anywhere the ship would cross
-            if not flipped:
-              for i in range(colNum, colNum + shipLength):
-                prob = probs[rowNum][i] + 1
-                probs[rowNum][i] = prob
-            else:
-              for i in range(rowNum, rowNum + shipLength):
-                prob = probs[i][colNum] + 1
-                probs[i][colNum] = prob
-
-    #If the tile has already been guessed, set the probability to 0
-    for rowNum in range(len(probs)):
-      for colNum in range(len(probs[0])):
-        if usedMoves[rowNum][colNum] != "0":
-          probs[rowNum][colNum] = 0
-
-    #Find the highest probability of a ship being there
-    maxProb = 0
-    for row in probs:
-      for prob in row:
-        if prob > maxProb:
-          maxProb = prob
-
-    #Mark all high probability tiles with "X", set the rest to "0"
-    for rowNum in range(len(probs)):
-      for colNum in range(len(probs[0])):
-        if probs[rowNum][colNum] == maxProb:
-          probs[rowNum][colNum] = "0"
-        else:
-          probs[rowNum][colNum] = "X"
-
-    #Guess most efficient high probability tile
-    [x, y] = self.cutGrid(probs)
-
-    self.lastGuess = [x, y]
-    return [x, y]
