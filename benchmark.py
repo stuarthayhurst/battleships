@@ -16,6 +16,7 @@ else:
 
 sampleSize = 1000
 totalGuesses = 0
+minGuesses = 49
 for sample in range(sampleSize):
   shipMarkers = gameHelper.generateBoard(7)
   remainingShips = [[(1 if col != 0 else 0) for col in row] for row in shipMarkers]
@@ -44,5 +45,8 @@ for sample in range(sampleSize):
     controller.feedbackMove(didHit, didSink, destroyedShip)
 
   totalGuesses += currentGuesses
+  if currentGuesses < minGuesses:
+    minGuesses = currentGuesses
 
 print(f"Average guesses: {totalGuesses / sampleSize}")
+print(f"Best game      : {minGuesses}")
