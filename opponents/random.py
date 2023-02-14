@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 import random
+import gameHelper
 
 class Opponent:
   def __init__(self):
@@ -18,3 +19,6 @@ class Opponent:
 
   def feedbackMove(self, wasHit, didSink, destroyedShip):
     pass
+
+  def placeShips(self):
+    return gameHelper.generateBoard(7)

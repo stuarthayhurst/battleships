@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 import random
+import gameHelper
 
 #Info:
 # -  0 : unguessed
@@ -467,3 +468,6 @@ class Opponent():
     #Pick best target at random from candidates, to hide any patern that may form
     target = optimalTargets[random.randint(0, len(optimalTargets) - 1)]
     return target
+
+  def placeShips(self):
+    return gameHelper.generateBoard(7)
