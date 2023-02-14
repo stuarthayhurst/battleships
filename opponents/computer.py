@@ -6,7 +6,8 @@ import random
 # -  0 : unguessed
 # - -1 : miss
 # -  1 : hit
-# -  2 : destroyed ship
+# -  2 : destroyed ship - calculated
+# -  3 : destroyed ship - feedback
 
 #TODO: update this
 #If the last hit was successful, try guessing around it in a circle
@@ -68,7 +69,7 @@ class Opponent():
   def feedbackMove(self, wasHit, didSink, destroyedShip):
     marker = -1
     if didSink:
-      marker = 2
+      marker = 3
     elif wasHit:
       marker = 1
 
@@ -219,7 +220,7 @@ class Opponent():
     #Recursively check connected hit tiles for a sunk tile
     def checkHit(grid, seenHits, position):
       #print(f"trying ({position=})") DEBUG
-      if grid[position[1]][position[0]] == 2:
+      if grid[position[1]][position[0]] == 3:
         #print(f"sent fail ({position=})") DEBUG
         return "fail"
 
@@ -359,14 +360,14 @@ class Opponent():
             failed = False
             if not flipped:
               for i in range(colNum, colNum + shipLength):
-                if grid[rowNum][i] == 2 or grid[rowNum][i] == -1:
+                if grid[rowNum][i] >= 2 or grid[rowNum][i] == -1:
                   failed = True
                   break
               if failed:
                 continue
             else:
               for i in range(rowNum, rowNum + shipLength):
-                if grid[i][colNum] == 2 or grid[i][colNum] == -1:
+                if grid[i][colNum] >= 2 or grid[i][colNum] == -1:
                   failed = True
                   break
               if failed:
