@@ -1,8 +1,9 @@
 #!/usr/bin/python3
 import os, time, sys
+
 import player
-import computer
-import randomComputer
+import opponents.computer as computer
+import opponents.random as randomComputer
 
 #Board identifiers, as well as corresponding names and ship lengths
 pieceIdentifiers = ["c", "b", "d", "s", "p"]
@@ -185,7 +186,7 @@ class GameController:
           return False
     return True
 
-  def placeMove(self, controller, grid, usedMoves, move, delay):
+  def placeMove(self, controller, grid, move, delay):
     hitTile = grid[move[1]][move[0]]
 
     print(f"Firing at {chr(move[0] + 97).upper()}, {move[1] + 1}", end = "", flush = True)
@@ -198,29 +199,38 @@ class GameController:
     else:
       print("... ", end = "")
 
+#TODO comment
+
+    didHit = hitTile in self.pieceIdentifiers
+
+    grid[move[1]][move[0]] = "0"
+
+#TODO: Use gameHelper for this
+
+    #Return if the full ship hasn't been hit
+    didSink = False
+    if didHit:
+      didSink = True
+      for row in grid:
+        if hitTile in row:
+          didSink = False
+          break
+
+    destroyedShip = None
+    if didSink:
+      destroyedShip = hitTile
+
+    controller.feedbackMove(didHit, didSink, destroyedShip)
+
     #If guess was a miss, blank that tile and return
-    if hitTile not in self.pieceIdentifiers:
-      usedMoves[move[1]][move[0]] = " "
+    if not didHit:
       print("miss!")
       return
 
     print("hit!")
-    usedMoves[move[1]][move[0]] = "X"
-    grid[move[1]][move[0]] = "0"
 
-    #If the controller is a computer, let it know it hit
-    if controller.isComputer:
-      controller.lastHit = move
-
-    #Return if the full ship hasn't been hit
-    for row in grid:
-      if hitTile in row:
-        return
-
-    #Whichever ship was hit is no longer on the grid, announce it sank
-    print(f"Enemy {self.pieceInfo[hitTile][0]} was sunk!")
-    if controller.isComputer:
-      controller.lastHit = [-1, -1]
+    if didSink:
+      print(f"Enemy {self.pieceInfo[hitTile][0]} was sunk!")
 
   def printRuntime(self):
     runtimeSeconds = time.time() - self.startTime
@@ -232,7 +242,6 @@ class GameController:
   def setup(self, gridWidth, gridHeight):
     #Initialise grids
     self.grids = self.createGrids(gridWidth, gridHeight) #Store player ships
-    self.moves = self.createGrids(gridWidth, gridHeight) #Store moves made
 
     if not self.grids:
       return False
@@ -242,14 +251,11 @@ class GameController:
     gridWidth = len(self.grids[0][0])
     gridHeight = len(self.grids[0])
     self.grids = self.createGrids(gridWidth, gridHeight)
-    self.moves = self.createGrids(gridWidth, gridHeight)
 
   def addPlayers(self, controllers):
     #Create a controller for each player
-    self.controllers[0] = controllers[0](self.pieceIdentifiers, self.pieceInfo, 1)
-    self.controllers[0].passHelpers(self.playerHelpers)
-    self.controllers[1] = controllers[1](self.pieceIdentifiers, self.pieceInfo, 2)
-    self.controllers[1].passHelpers(self.playerHelpers)
+    self.controllers[0] = controllers[0]()
+    self.controllers[1] = controllers[1]()
 
   def getShips(self, grids):
     #Find all remaining ships for both players
@@ -267,29 +273,42 @@ class GameController:
     #Start game timer
     self.startTime = time.time()
 
-    os.system("clear")
-    self.controllers[0].placeShips(self.grids[0])
-    os.system("clear")
-    self.controllers[1].placeShips(self.grids[1])
+    def convertBoard(board):
+      for i in range(len(board)):
+        for j in range(len(board)):
+          if board[i][j] == 0:
+            board[i][j] = "0"
+
+    for i in [0, 1]:
+      os.system("clear")
+      self.grids[i] = self.controllers[i].placeShips()
+      convertBoard(self.grids[i])
 
     while True:
       #Get next move from controller, using existing moves and remaining ships
-      move = self.controllers[0].nextMove(self.moves[0], self.getShips(self.grids))
+      print("player 1 move:") #TODO debug
+      move = self.controllers[0].makeMove()
       #Update enemy grid and made moves grids
-      self.placeMove(self.controllers[0], self.grids[1], self.moves[0], move, delayHit)
+      self.placeMove(self.controllers[0], self.grids[1], move, delayHit)
       #If the game is over, exit
       if self.checkWinner(self.grids[1]):
+        input("Winner 1") #TODO debug
         winner = "Player 1"
         break
+
+#TODO share logic
+#TODO board drawing needs to be done here
 
       #Wait for next player
       if delayHit:
         input("\nPress enter to continue")
 
       #Same as controller 1
-      move = self.controllers[1].nextMove(self.moves[1], self.getShips(self.grids))
-      self.placeMove(self.controllers[1], self.grids[0], self.moves[1], move, delayHit)
+      print("player 2 move:") #TODO debug
+      move = self.controllers[1].makeMove()
+      self.placeMove(self.controllers[1], self.grids[0], move, delayHit)
       if self.checkWinner(self.grids[0]):
+        input("Winner 2") #TODO debug
         winner = "Player 2"
         break
 
@@ -324,9 +343,9 @@ while True:
 if gamemode == 1:
   players = [player.Player, player.Player]
 elif gamemode == 2:
-  players = [player.Player, computer.Player]
+  players = [player.Player, computer.Opponent]
 else:
-  players = [randomComputer.Player, computer.Player]
+  players = [randomComputer.Opponent, computer.Opponent]
 
 #If '--no-delay' is passed, skip delays
 delay = True
