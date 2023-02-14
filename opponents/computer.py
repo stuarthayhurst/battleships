@@ -28,7 +28,7 @@ class Opponent():
     self.opponentGrid = [[0 for i in range(7)] for j in range(7)]
     self.lastMove = [None, None]
     self.lastHit = [None, None]
-    self.loneHits = []
+    self.unsunkHits = []
 
     self.shipInfo = {"c": 5, "b": 4, "d": 3, "s": 3, "p": 2}
     self.remainingIdentifiers = list(self.shipInfo.keys())
@@ -219,13 +219,10 @@ class Opponent():
 
     #Recursively check connected hit tiles for a sunk tile
     def checkHit(grid, seenHits, position):
-      #print(f"trying ({position=})") DEBUG
       if grid[position[1]][position[0]] == 3:
-        #print(f"sent fail ({position=})") DEBUG
         return "fail"
 
       if position in seenHits:
-        #print(f"already seen ({position=})") DEBUG
         return "seen"
 
       if grid[position[1]][position[0]] != 1:
@@ -250,72 +247,41 @@ class Opponent():
         value = checkHit(grid, seenHits, newPosition)
         if value == "fail":
           return "fail"
-        elif value == "nohit":
-          pass
-        elif value == "seen":
-          pass
-        else:
+        elif value != "nohit" and value != "seen":
           path += value
-#TODO cleanup
 
       return path
 
-#TODO debug on return later - maybe keep?
-
-#TODO add number 3 as a marker for ships directly reported as sunk
-#Use this for checking groups
-#Remove debug comments
-
     #Identify any unsunk patch of ships (when hits touch eachother, with no sunk tiles)
     path = []
-    self.loneHits = []
+    self.unsunkHits = []
     for rowNum in range(len(self.opponentGrid)):
       for colNum in range(len(self.opponentGrid)):
         if self.opponentGrid[rowNum][colNum] == 1:
           seenHits = []
-          #print(f"dispatch ({[colNum, rowNum]=})") DEBUG
           value = checkHit(self.opponentGrid, seenHits, [colNum, rowNum])
           if value != "seen" and value != "fail":
             path += value
-            #print(f"kept ({[colNum, rowNum]=})") DEBUG
-          elif value == "fail": #TODO cleanup
-            pass
-            #print(f"discarded ({[colNum, rowNum]=})") DEBUG
-          elif value == "seen":
-            pass
-            #print(f"seen ({[colNum, rowNum]=})") DEBUG
-    self.loneHits = path
+    self.unsunkHits = path
 
     temp = []
-    for hit in self.loneHits:
+    for hit in self.unsunkHits:
       if hit not in temp:
         temp.append(hit)
-    self.loneHits = temp
-
-#TODO debug
-    if len(self.loneHits) != 0 and False:
-      print(self.loneHits)
-      for row in self.opponentGrid:
-        print(row)
-
-#rename lone ships #TODO
-
-#TODO this sucks - it works, but hardly fires
-#Revisit after 3 identifier work - probably nothing changed
+    self.unsunkHits = temp
 
     #Detect when all ships except known unsunk ships are sunk
-    if hitsMade - len(self.loneHits) == sunkTiles and len(self.loneHits) > 0:
+    if hitsMade - len(self.unsunkHits) == sunkTiles and len(self.unsunkHits) > 0:
       for rowNum in range(len(self.opponentGrid)):
         for colNum in range(len(self.opponentGrid)):
           if self.opponentGrid[rowNum][colNum] == 1:
             failed = False
-            for loneHit in self.loneHits:
-              if colNum == loneHit[0] and rowNum == loneHit[1]:
+            for unsunkHit in self.unsunkHits:
+              if colNum == unsunkHit[0] and rowNum == unsunkHit[1]:
                 failed = True
                 break
 
             if not failed:
-              print("triggered") #TODO debug
               self.opponentGrid[rowNum][colNum] = 2
 
   def makeMove(self):
@@ -335,10 +301,10 @@ class Opponent():
       if hitsMade > 17 - self.shipInfo[self.remainingIdentifiers[0]]:
         mustIntersect = True
 
-    #If a lone ship is present, any ship must intersect it
-    mustIntersectLone = False
-    if len(self.loneHits) != 0:
-      mustIntersectLone = True
+    #If an unsunk ship is present, any ship must intersect it
+    mustIntersectUnsunk = False
+    if len(self.unsunkHits) != 0:
+      mustIntersectUnsunk = True
 
     #Attempt to identify all possible locations for enemy pieces left
     for ship in self.remainingIdentifiers:
@@ -374,19 +340,19 @@ class Opponent():
                 continue
 
             #If a lone hit is present, possible ships must intersect
-            if mustIntersectLone:
+            if mustIntersectUnsunk:
               passed = False
               if not flipped:
                 for i in range(colNum, colNum + shipLength):
-                  for loneHit in self.loneHits:
-                    if loneHit[0] == i and loneHit[1] == rowNum:
+                  for unsunkHit in self.unsunkHits:
+                    if unsunkHit[0] == i and unsunkHit[1] == rowNum:
                       passed = True
                 if not passed:
                   continue
               else:
                 for i in range(rowNum, rowNum + shipLength):
-                  for loneHit in self.loneHits:
-                    if loneHit[0] == colNum and loneHit[1] == i:
+                  for unsunkHit in self.unsunkHits:
+                    if unsunkHit[0] == colNum and unsunkHit[1] == i:
                       passed = True
                 if not passed:
                   continue
@@ -442,8 +408,7 @@ class Opponent():
 
     self.lastMove = [x, y]
     if self.opponentGrid[y][x] != 0:
-      input("FAIL")
-#TODO
+      input("Duplicate move, something has gone wrong")
     return [x, y]
 
 
