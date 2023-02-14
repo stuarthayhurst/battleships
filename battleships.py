@@ -308,18 +308,18 @@ if not game.setup(7, 7):
 
 #Choose the gamemode
 while True:
-  os.system("cls || clear")
+  os.system("clear")
   print("1: Player vs player")
   print("2: Player vs computer")
   print("3: Random shots vs computer")
   try:
     gamemode = int(input("Select a gamemode (1-3): "))
     if gamemode < 1 or gamemode > 3:
-      os.system("cls || clear")
+      os.system("clear")
     else:
       break
   except ValueError:
-    os.system("cls || clear")
+    os.system("clear")
 
 if gamemode == 1:
   players = [player.Player, player.Player]
