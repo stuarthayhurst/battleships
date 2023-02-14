@@ -29,6 +29,7 @@ class Opponent():
     self.lastMove = [None, None]
     self.lastHit = [None, None]
     self.unsunkHits = []
+    self.hitsMade = 0
 
     self.shipInfo = {"c": 5, "b": 4, "d": 3, "s": 3, "p": 2}
     self.remainingIdentifiers = list(self.shipInfo.keys())
@@ -46,13 +47,6 @@ class Opponent():
 # - In the readme, mention the performance improvements from using pypy3
 # - Document each subproject
 
-#TODO: clean up code and comment
-#TODO: - before i do this, get code into a commitable state
-
-#TODO:
-#Battleships (non-coursework)
-# - Get ready to add neural network and open-source
-# - Do second edge-case sunk ship detection first, and only check for unresolved hits
 
 #If all ships have been hit, require guesses to aim for ships passing through an unresolved hit
 #If guaranteed unsunk ships remain, boost the probability for ships passing through this (experiment with coefficient)
@@ -89,14 +83,14 @@ class Opponent():
     for identifier in self.remainingIdentifiers:
       sunkTiles -= self.shipInfo[identifier]
 
-    hitsMade = 0
+    self.hitsMade = 0
     for row in self.opponentGrid:
       for col in row:
         if col > 0:
-          hitsMade += 1
+          self.hitsMade += 1
 
     #If all hits are on destroyed ships, mark them as such
-    if hitsMade == sunkTiles:
+    if self.hitsMade == sunkTiles:
       for col in range(7):
         for row in range(7):
           if self.opponentGrid[col][row] == 1:
@@ -271,7 +265,7 @@ class Opponent():
     self.unsunkHits = temp
 
     #Detect when all ships except known unsunk ships are sunk
-    if hitsMade - len(self.unsunkHits) == sunkTiles and len(self.unsunkHits) > 0:
+    if self.hitsMade - len(self.unsunkHits) == sunkTiles and len(self.unsunkHits) > 0:
       for rowNum in range(len(self.opponentGrid)):
         for colNum in range(len(self.opponentGrid)):
           if self.opponentGrid[rowNum][colNum] == 1:
@@ -289,17 +283,16 @@ class Opponent():
     grid = self.opponentGrid
     probs = [[0 for i in range(7)] for j in range(7)]
 
-    #If one ship remains and has been hit, any guess must be aiming for a ship that intersects a ship
-    mustIntersect = False
-    if len(self.remainingIdentifiers) == 1:
-      hitsMade = 0
-      for row in self.opponentGrid:
-        for col in row:
-          if col > 0:
-            hitsMade += 1
+    #Calculate smallest remaining ship
+    minSize = 5
+    for identifier in self.remainingIdentifiers:
+      if self.shipInfo[identifier] < minSize:
+        minSize = self.shipInfo[identifier]
 
-      if hitsMade > 17 - self.shipInfo[self.remainingIdentifiers[0]]:
-        mustIntersect = True
+    #If more hits have been made than 17 - smallest ship left, all remaining ships must've been hit
+    mustIntersect = False
+    if self.hitsMade > 17 - minSize:
+      mustIntersect = True
 
     #If an unsunk ship is present, any ship must intersect it
     mustIntersectUnsunk = False
