@@ -1,8 +1,5 @@
 #!/usr/bin/python3
 
-shipData = [5, 4, 3, 3, 2]
-boardSize = 7
-
 def placePiece(grid, length, x, y, flipped):
   #Return false if another ship is in the way
   if not flipped:
@@ -26,7 +23,6 @@ def placePiece(grid, length, x, y, flipped):
 
   return newGrid, True
 
-n = 0
 def compute(validShips, grid):
   global n
   if len(validShips) == 0:
@@ -52,6 +48,10 @@ def compute(validShips, grid):
             if success:
               compute(newValidShips, newBoard)
 
+shipData = [5, 4, 3, 3, 2]
+boardSize = 7
+
+n = 0
 initialValidShips = [i for i in range(len(shipData))]
 grid = [[0 for i in range(boardSize)] for j in range(boardSize)]
 compute(initialValidShips, grid)
