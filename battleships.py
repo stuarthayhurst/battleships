@@ -110,18 +110,6 @@ class GameController:
     self.controllers[0] = controllers[0]()
     self.controllers[1] = controllers[1]()
 
-  def getShips(self, grids):
-    #Find all remaining ships for both players
-    ships = [[], []]
-    for playerNum, grid in enumerate(grids):
-      for row in grid:
-        for col in row:
-          if col != "0" and col not in ships[playerNum]:
-            ships[playerNum].append(col)
-      ships[playerNum] = sorted(ships[playerNum], key = lambda x:self.pieceInfo[x][1], reverse = True)
-
-    return ships
-
   #Print the passed grid
   def drawGrid(self, grid, hideShips):
     #Print a line of text with the given colour
