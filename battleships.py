@@ -40,8 +40,7 @@ class GameController:
     return True
 
   def handleMove(self, controller, grid, move):
-    hitTile = grid[move[1]][move[0]]
-
+    #Print mini firing animation
     print(f"Firing at {chr(move[0] + 97).upper()}, {move[1] + 1}", end = "", flush = True)
     for i in range(3):
       time.sleep(self.delayLength)
@@ -49,18 +48,16 @@ class GameController:
     time.sleep(self.delayLength)
     print(" ", end = "")
 
-#TODO comment
-
+    hitTile = grid[move[1]][move[0]]
     didHit = hitTile in self.pieceIdentifiers
 
+    #Mark the hit on the visible board
     if didHit:
       grid[move[1]][move[0]] = "X"
     else:
       grid[move[1]][move[0]] = " "
 
-#TODO: Use gameHelper for this
-
-    #Return if the full ship hasn't been hit
+    #Decide whether the whole ship has been hit
     didSink = False
     if didHit:
       didSink = True
@@ -69,17 +66,16 @@ class GameController:
           didSink = False
           break
 
+    #Get the destroyed ship (if relevant), and feedback to controller
     destroyedShip = None
     if didSink:
       destroyedShip = hitTile
-
     controller.feedbackMove(didHit, didSink, destroyedShip)
 
-    #If guess was a miss, blank that tile and return
+    #Print the guess results
     if not didHit:
       print("miss!")
       return
-
     print("hit!")
 
     if didSink:
