@@ -5,6 +5,11 @@ import player
 import opponents.computer as computer
 import opponents.random as randomComputer
 
+#TODO:
+# - Update player controller (+ remove old files)
+# - Finish computer opponent
+# - Implement neural network opponent
+
 #Board identifiers, as well as corresponding names and ship lengths
 pieceIdentifiers = ["c", "b", "d", "s", "p"]
 pieceInfo = {

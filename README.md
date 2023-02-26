@@ -19,6 +19,6 @@
     - With `n` being the number of ships and `w` being with width of the board, the time compelxity scales with `O(w^2 * 2)^n * n!`
     - Using a width of 7 and 5 ships, this gives ~ 1.1 trillion combinations to try
 
-##To-do:
+## To-do:
   - Rewrite board compute in C, add Makefile, document and show benchmarks
-  - Add neural-network based battleships opponent
+  - Finish to-do list in `battleships.py`
