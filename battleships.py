@@ -109,51 +109,6 @@ class PlayerHelpers:
 
     return True
 
-  #Print the passed grid
-  def drawGrid(self, grid):
-    #Print a line of text with the given colour
-    def printColour(text, colour):
-      print(f"{colour}{text}\033[0m", end = "")
-
-    #Print alphabetical grid references in a bar
-    def printAlphaRef(grid):
-      print("   ", end = "")
-      for i in range(len(grid[0])):
-        #Print each alphabetical grid reference
-        print(chr(i + 65), end = "")
-      print()
-
-    #Print row number
-    def printNumRef(rowNum):
-      #Prefix a zero if single digit
-      rowNum += 1
-      if rowNum < 10:
-        print("0", end = "")
-      print(f"{rowNum} ", end = "")
-
-    printAlphaRef(grid)
-
-    #Iterate over grid coords
-    for rowNum, row in enumerate(grid):
-      printNumRef(rowNum)
-
-      #Show each grid point
-      for col in row:
-        #Print hit markers in red
-        if col == "X":
-          printColour(col, "\033[31m")
-        elif col in self.pieceIdentifiers:
-          printColour(col, "\033[94m")
-        else:
-          print(col, end = "")
-
-      print(" ", end = "")
-      printNumRef(rowNum)
-      print()
-
-    printAlphaRef(grid)
-    print()
-
   def printShips(self, remainingShips):
     #Print the remaining ships
     for playerNum, playerShips in enumerate(remainingShips):
@@ -186,7 +141,7 @@ class GameController:
           return False
     return True
 
-  def placeMove(self, controller, grid, move, delay):
+  def handleMove(self, controller, grid, move, delay):
     hitTile = grid[move[1]][move[0]]
 
     print(f"Firing at {chr(move[0] + 97).upper()}, {move[1] + 1}", end = "", flush = True)
@@ -269,6 +224,51 @@ class GameController:
 
     return ships
 
+  #Print the passed grid
+  def drawGrid(self, grid):
+    #Print a line of text with the given colour
+    def printColour(text, colour):
+      print(f"{colour}{text}\033[0m", end = "")
+
+    #Print alphabetical grid references in a bar
+    def printAlphaRef(grid):
+      print("   ", end = "")
+      for i in range(len(grid[0])):
+        #Print each alphabetical grid reference
+        print(chr(i + 65), end = "")
+      print()
+
+    #Print row number
+    def printNumRef(rowNum):
+      #Prefix a zero if single digit
+      rowNum += 1
+      if rowNum < 10:
+        print("0", end = "")
+      print(f"{rowNum} ", end = "")
+
+    printAlphaRef(grid)
+
+    #Iterate over grid coords
+    for rowNum, row in enumerate(grid):
+      printNumRef(rowNum)
+
+      #Show each grid point
+      for col in row:
+        #Print hit markers in red
+        if col == "X":
+          printColour(col, "\033[31m")
+        elif col in self.pieceIdentifiers:
+          printColour(col, "\033[94m")
+        else:
+          print(col, end = "")
+
+      print(" ", end = "")
+      printNumRef(rowNum)
+      print()
+
+    printAlphaRef(grid)
+    print()
+
   def start(self, delayHit):
     #Start game timer
     self.startTime = time.time()
@@ -285,11 +285,14 @@ class GameController:
       convertBoard(self.grids[i])
 
     while True:
+
+      self.drawGrid(self.grids[1])
+
       #Get next move from controller, using existing moves and remaining ships
       print("player 1 move:") #TODO debug
       move = self.controllers[0].makeMove()
       #Update enemy grid and made moves grids
-      self.placeMove(self.controllers[0], self.grids[1], move, delayHit)
+      self.handleMove(self.controllers[0], self.grids[1], move, delayHit)
       #If the game is over, exit
       if self.checkWinner(self.grids[1]):
         input("Winner 1") #TODO debug
@@ -306,7 +309,7 @@ class GameController:
       #Same as controller 1
       print("player 2 move:") #TODO debug
       move = self.controllers[1].makeMove()
-      self.placeMove(self.controllers[1], self.grids[0], move, delayHit)
+      self.handleMove(self.controllers[1], self.grids[0], move, delayHit)
       if self.checkWinner(self.grids[0]):
         input("Winner 2") #TODO debug
         winner = "Player 2"
