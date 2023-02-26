@@ -287,42 +287,29 @@ class GameController:
       self.grids[i] = self.controllers[i].placeShips()
       convertBoard(self.grids[i])
 
+    winner = ""
     while True:
-      #Draw controller 1's hits
-      os.system("clear")
-      self.drawGrid(self.grids[1], True)
+      for i in [0, 1]:
+        #Draw controller's hits
+        os.system("clear")
+        self.drawGrid(self.grids[1 - i], True)
 
-      #Get next move from controller, using existing moves and remaining ships
-      print("player 1 move:") #TODO debug
-      move = self.controllers[0].makeMove()
-      #Update enemy grid and made moves grids
-      self.handleMove(self.controllers[0], self.grids[1], move)
-      #If the game is over, exit
-      if self.checkWinner(self.grids[1]):
-        input("Winner 1") #TODO debug
-        winner = "Player 1"
+        #Get next move from controller
+        print(f"Player {i + 1}'s guess:")
+        move = self.controllers[i].makeMove()
+
+        #Update enemy grid and made moves grids
+        self.handleMove(self.controllers[i], self.grids[1 - i], move)
+        #If the game is over, exit
+        if self.checkWinner(self.grids[1 - i]):
+          winner = f"Player {i + 1}"
+          break
+
+        #Wait for next player
+        input("\nPress enter to continue")
+
+      if winner != "":
         break
-
-#TODO share logic
-#TODO board drawing needs to be done here
-
-      #Wait for next player
-      input("\nPress enter to continue")
-
-      #Draw controller 2's hits
-      os.system("clear")
-      self.drawGrid(self.grids[0], True)
-
-      #Same as controller 1
-      print("player 2 move:") #TODO debug
-      move = self.controllers[1].makeMove()
-      self.handleMove(self.controllers[1], self.grids[0], move)
-      if self.checkWinner(self.grids[0]):
-        input("Winner 2") #TODO debug
-        winner = "Player 2"
-        break
-
-      input("\nPress enter to continue")
 
     print(f"{winner} wins!")
 
