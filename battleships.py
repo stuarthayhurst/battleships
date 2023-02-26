@@ -125,49 +125,40 @@ class GameController:
   #Print the passed grid
   def drawGrid(self, grid, hideShips):
     #Print a line of text with the given colour
-    def printColour(text, colour):
-      print(f"{colour}{text}\033[0m", end = "")
+    def getColoured(text, colour):
+      return f"{colour}{text}\033[0m"
 
-    #Print alphabetical grid references in a bar
-    def printAlphaRef(grid):
-      print("   ", end = "")
-      for i in range(len(grid[0])):
-        #Print each alphabetical grid reference
-        print(chr(i + 65), end = "")
-      print()
-
-    #Print row number
-    def printNumRef(rowNum):
+    def getRowRef(rowNum):
       #Prefix a zero if single digit
-      rowNum += 1
       if rowNum < 10:
-        print("0", end = "")
-      print(f"{rowNum} ", end = "")
+        return f"0{rowNum}"
+      return str(rowNum)
 
-    printAlphaRef(grid)
+    #Get a string of alphabetical grid references (A -> upper bound)
+    colRef = f"   {''.join([chr(i + 65) for i in range(len(grid[0]))])}"
+    print(colRef)
 
     #Iterate over grid coords
     for rowNum, row in enumerate(grid):
-      printNumRef(rowNum)
+      rowRef = getRowRef(rowNum + 1)
+      rowBuffer = f"{rowRef} "
 
       #Show each grid point
       for col in row:
         #Print hit markers in red
         if col == "X":
-          printColour(col, "\033[31m")
+          rowBuffer += getColoured(col, "\033[31m")
         elif col in self.pieceIdentifiers and not hideShips:
-          printColour(col, "\033[94m")
+          rowBuffer += getColoured(col, "\033[94m")
         elif col == " ":
-          print(" ", end = "")
+          rowBuffer += " "
         else:
-          print("0", end = "")
+          rowBuffer += "0"
 
-      print(" ", end = "")
-      printNumRef(rowNum)
-      print()
+      rowBuffer += f" {rowRef}"
+      print(rowBuffer)
 
-    printAlphaRef(grid)
-    print()
+    print(colRef)
 
   def start(self):
     #Start game timer
