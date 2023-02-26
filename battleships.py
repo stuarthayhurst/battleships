@@ -119,12 +119,13 @@ class PlayerHelpers:
     print()
 
 class GameController:
-  def __init__(self, pieceIdentifiers, pieceInfo):
+  def __init__(self, pieceIdentifiers, pieceInfo, delayLength):
     self.pieceIdentifiers = pieceIdentifiers
     self.pieceInfo = pieceInfo
-    self.controllers = [0, 0]
+    self.delayLength = delayLength
+
+    self.controllers = [None, None]
     self.startTime = 0
-    self.playerHelpers = PlayerHelpers(self.pieceIdentifiers, self.pieceInfo)
 
   #Return a list of blank grids (1 for each controller)
   def createGrids(self, gridWidth, gridHeight):
@@ -141,18 +142,15 @@ class GameController:
           return False
     return True
 
-  def handleMove(self, controller, grid, move, delay):
+  def handleMove(self, controller, grid, move):
     hitTile = grid[move[1]][move[0]]
 
     print(f"Firing at {chr(move[0] + 97).upper()}, {move[1] + 1}", end = "", flush = True)
-    if delay:
-      for i in range(3):
-        time.sleep(0.15)
-        print(".", end = "", flush = True)
-      time.sleep(0.15)
-      print(" ", end = "")
-    else:
-      print("... ", end = "")
+    for i in range(3):
+      time.sleep(self.delayLength)
+      print(".", end = "", flush = True)
+    time.sleep(self.delayLength)
+    print(" ", end = "")
 
 #TODO comment
 
@@ -269,7 +267,7 @@ class GameController:
     printAlphaRef(grid)
     print()
 
-  def start(self, delayHit):
+  def start(self):
     #Start game timer
     self.startTime = time.time()
 
@@ -292,7 +290,7 @@ class GameController:
       print("player 1 move:") #TODO debug
       move = self.controllers[0].makeMove()
       #Update enemy grid and made moves grids
-      self.handleMove(self.controllers[0], self.grids[1], move, delayHit)
+      self.handleMove(self.controllers[0], self.grids[1], move)
       #If the game is over, exit
       if self.checkWinner(self.grids[1]):
         input("Winner 1") #TODO debug
@@ -303,30 +301,20 @@ class GameController:
 #TODO board drawing needs to be done here
 
       #Wait for next player
-      if delayHit:
-        input("\nPress enter to continue")
+      input("\nPress enter to continue")
 
       #Same as controller 1
       print("player 2 move:") #TODO debug
       move = self.controllers[1].makeMove()
-      self.handleMove(self.controllers[1], self.grids[0], move, delayHit)
+      self.handleMove(self.controllers[1], self.grids[0], move)
       if self.checkWinner(self.grids[0]):
         input("Winner 2") #TODO debug
         winner = "Player 2"
         break
 
-      if delayHit:
-        input("\nPress enter to continue")
+      input("\nPress enter to continue")
 
     print(f"{winner} wins!")
-
-#Create instance of the game logic
-game = GameController(pieceIdentifiers, pieceInfo)
-
-#Use standard 7x7 setup
-if not game.setup(7, 7):
-  input("Failed to create grids, exiting")
-  exit(1)
 
 #Choose the gamemode
 while True:
@@ -351,16 +339,24 @@ else:
   players = [randomComputer.Opponent, computer.Opponent]
 
 #If '--no-delay' is passed, skip delays
-delay = True
+delayLength = 0.15
 if len(sys.argv) > 1:
   if sys.argv[1] == "--no-delay":
-    delay = False
+    delayLength = 0.0
+
+#Create instance of the game logic
+game = GameController(pieceIdentifiers, pieceInfo, delayLength)
+
+#Use standard 7x7 setup
+if not game.setup(7, 7):
+  input("Failed to create grids, exiting")
+  exit(1)
 
 while True:
   try:
     #Handle each run of the game
     game.addPlayers(players)
-    game.start(delay)
+    game.start()
     game.printRuntime()
     #Reset player ships and moves to blank grids
     game.reset()
