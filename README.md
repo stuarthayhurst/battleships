@@ -17,7 +17,7 @@
   - The code has been written with `pypy3` in mind, this is strongly suggested to be used (~6x performance improvement)
   - This script takes around 45 minutes to run using a Ryzen 5 5600X
     - With `n` being the number of ships and `w` being with width of the board, the time compelxity scales with `O(w^2 * 2)^n * n!`
-    - Using a width of 7 and 5 ships, this gives ~ 1.1 trillion combinations to try
+    - Using 5 ships and a width of 7, this gives ~1.1 trillion combinations to try
 
 ## To-do:
   - Rewrite board compute in C, add Makefile, document and show benchmarks
