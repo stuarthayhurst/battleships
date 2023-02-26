@@ -138,7 +138,7 @@ class GameController:
     #Return true if all pieces are gone
     for row in grid:
       for i in row:
-        if i != "0":
+        if i in self.pieceIdentifiers:
           return False
     return True
 
@@ -156,7 +156,10 @@ class GameController:
 
     didHit = hitTile in self.pieceIdentifiers
 
-    grid[move[1]][move[0]] = "0"
+    if didHit:
+      grid[move[1]][move[0]] = "X"
+    else:
+      grid[move[1]][move[0]] = " "
 
 #TODO: Use gameHelper for this
 
@@ -223,7 +226,7 @@ class GameController:
     return ships
 
   #Print the passed grid
-  def drawGrid(self, grid):
+  def drawGrid(self, grid, hideShips):
     #Print a line of text with the given colour
     def printColour(text, colour):
       print(f"{colour}{text}\033[0m", end = "")
@@ -255,10 +258,12 @@ class GameController:
         #Print hit markers in red
         if col == "X":
           printColour(col, "\033[31m")
-        elif col in self.pieceIdentifiers:
+        elif col in self.pieceIdentifiers and not hideShips:
           printColour(col, "\033[94m")
+        elif col == " ":
+          print(" ", end = "")
         else:
-          print(col, end = "")
+          print("0", end = "")
 
       print(" ", end = "")
       printNumRef(rowNum)
@@ -283,8 +288,9 @@ class GameController:
       convertBoard(self.grids[i])
 
     while True:
-
-      self.drawGrid(self.grids[1])
+      #Draw controller 1's hits
+      os.system("clear")
+      self.drawGrid(self.grids[1], True)
 
       #Get next move from controller, using existing moves and remaining ships
       print("player 1 move:") #TODO debug
@@ -302,6 +308,10 @@ class GameController:
 
       #Wait for next player
       input("\nPress enter to continue")
+
+      #Draw controller 2's hits
+      os.system("clear")
+      self.drawGrid(self.grids[0], True)
 
       #Same as controller 1
       print("player 2 move:") #TODO debug
