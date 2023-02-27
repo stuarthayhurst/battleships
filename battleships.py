@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 import os, time, sys
 
-import player
+import opponents.player as player
 import opponents.computer as computer
 import opponents.random as randomComputer
 
@@ -9,6 +9,7 @@ import opponents.random as randomComputer
 # - Update player controller (+ remove old files)
 # - Finish computer opponent
 # - Implement neural network opponent
+# - Allow variable board sizes
 
 #Board identifiers, as well as corresponding names and ship lengths
 pieceIdentifiers = ["c", "b", "d", "s", "p"]
@@ -206,9 +207,9 @@ while True:
     os.system("clear")
 
 if gamemode == 1:
-  players = [player.Player, player.Player]
+  players = [player.Opponent, player.Opponent]
 elif gamemode == 2:
-  players = [player.Player, computer.Opponent]
+  players = [player.Opponent, computer.Opponent]
 else:
   players = [randomComputer.Opponent, computer.Opponent]
 
