@@ -15,9 +15,17 @@
 ## Battleships board compute:
   - `compute/countBoards.py` will calculate the number of valid battleships layouts from a grid size and list of ship lengths
   - The code has been written with `pypy3` in mind, this is strongly suggested to be used (~6x performance improvement)
-  - This script takes around 45 minutes to run using a Ryzen 5 5600X
+  - This script takes around 45 minutes to run using a Ryzen 5 5600X and `pypy3`
     - With `n` being the number of ships and `w` being with width of the board, the time compelxity scales with `O(w^2 * 2)^n * n!`
     - Using 5 ships and a width of 7, this gives ~1.1 trillion combinations to try
+  - Alternatively, `compute/countBoards.c` is a C implementation of the same algorithm
+    - This runs in about 2 minutes and 42 seconds, using a Ryzen 5 5600X
+    - Compile and run using the following commands:
+      - `cd compute/`
+      - `FAST="true" make`
+      - `./countBoards`
+    - Run `FAST="true" make` in `compute/`
+  - These programs don't save the boards, but could easily be modified to save or print them
 
 ## To-do:
   - Rewrite board compute in C, add Makefile, document and show benchmarks
