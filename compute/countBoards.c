@@ -147,16 +147,18 @@ int main() {
   char board[boardWidth * boardWidth];
   unsigned long long int totalBoards = 0;
 
+  //Initialise with 0s
   int boardMemSize = boardWidth * boardWidth * sizeof(board[0]);
-
   memset(&board, 0, boardMemSize);
 
+  //Initialise ship indices (0 -> n)
   const int validShipCount = sizeof(shipLengths) / sizeof(shipLengths[0]);
   int validShipIndices[validShipCount];
   for (int i = 0; i < validShipCount; i++) {
     validShipIndices[i] = i;
   }
 
+  //Pack data into struct to start recursion
   struct DataPtrs initialData;
   initialData.shipLengthsPtr = &shipLengths[0];
   initialData.totalBoardsPtr = &totalBoards;
