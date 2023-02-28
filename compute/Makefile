@@ -5,6 +5,10 @@ else
   CFLAGS += -O3
 endif
 
+ifeq ($(DEBUG),true)
+  CFLAGS += -g
+endif
+
 countBoards: countBoards.c
 	$(CC) "$@.c" -o "$@" $(CFLAGS)
 
