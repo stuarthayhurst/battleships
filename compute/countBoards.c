@@ -139,16 +139,6 @@ void compute(struct DataPtrs* dataPtrsPtr) {
   return;
 }
 
-//TODO use a struct for ShipData?
-//TODO: share core (use a pointer pair to jump to x or y)
-/*TODO:
- - Pre-opt: 3m 25.224s
- - Post-opt: 2m 52.334s
- - Post-opt mk2: 2m 47.200s
- - Post-opt mk3: 2m 45.894s
- - Post-opt mk4: 2m 41.777s
-*/
-
 int main() {
   //Configurable inputs
   int shipLengths[5] = {5, 4, 3, 3, 2};
