@@ -26,6 +26,13 @@
       - `./countBoards`
     - Run `FAST="true" make` in `compute/`
   - These programs don't save the boards, but could easily be modified to save or print them
+  - Comparison of implementation performance:
+
+    | Runner | Runtime  | Valid boards / s |
+    |:-------|:---------|------------------|
+    | Python | 294m 18s | 847,800          |
+    | Pypy3  | 46m 19s  | 5,389,000        |
+    | C      | 2m 41s   | 93,040,000       |
 
 ## To-do:
   - Rewrite board compute in C, add Makefile, document and show benchmarks
