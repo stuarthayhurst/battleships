@@ -35,5 +35,4 @@
     | C      | 2m 41s   | 93,040,000       |
 
 ## To-do:
-  - Rewrite board compute in C, add Makefile, document and show benchmarks
   - Finish to-do list in `battleships.py`
