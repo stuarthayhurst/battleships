@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include <time.h>
 
 struct DataPtrs {
   int* shipLengthsPtr;
@@ -168,9 +169,19 @@ int main() {
   initialData.validShipIndicesCount = validShipCount;
   initialData.validShipIndicesPtr = &validShipIndices[0];
 
+  struct timespec start, finish;
+  timespec_get(&start, TIME_UTC);
+
+  //Do actual calculations
   compute(&initialData);
 
-  printf("Found %lli boards\n", totalBoards);
+  //Calculate time delta to nearest nanosecond
+  timespec_get(&finish, TIME_UTC);
+  double deltaTime = (double)(finish.tv_sec - start.tv_sec) + ((double)(finish.tv_nsec - start.tv_nsec) / 1000000000.0f);
+  double boardRate = (double)totalBoards / deltaTime;
+
+  printf("\nFound %lli boards in %0.2f seconds\n", totalBoards, deltaTime);
+  printf("%0.2f boards / second\n", boardRate);
 
   return EXIT_SUCCESS;
 }
