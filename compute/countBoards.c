@@ -6,14 +6,14 @@
 struct DataPtrs {
   int* shipLengthsPtr;
   unsigned long long int* totalBoardsPtr;
-  int boardMemSize;
+  unsigned int boardMemSize;
   int boardWidth;
   char* boardPtr;
   int validShipIndicesCount;
   int* validShipIndicesPtr;
 };
 
-bool placePiece(char* origBoardPtr, char* newBoardPtr, int boardMemSize, int boardWidth, int shipLength, int x, int y, bool rotated) {
+bool placePiece(char* origBoardPtr, char* newBoardPtr, unsigned int boardMemSize, int boardWidth, int shipLength, int x, int y, bool rotated) {
   //Check for a ship collision
   if (rotated) {
     //Iterate vertically over the board
@@ -142,13 +142,13 @@ void compute(struct DataPtrs* dataPtrsPtr) {
 int main() {
   //Configurable inputs
   int shipLengths[5] = {5, 4, 3, 3, 2};
-  const int boardWidth = 7;
+  const unsigned int boardWidth = 7;
 
   char board[boardWidth * boardWidth];
   unsigned long long int totalBoards = 0;
 
   //Initialise with 0s
-  int boardMemSize = boardWidth * boardWidth * sizeof(board[0]);
+  const int boardMemSize = boardWidth * boardWidth * sizeof(board[0]);
   memset(&board, 0, boardMemSize);
 
   //Initialise ship indices (0 -> n)
