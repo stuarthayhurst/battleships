@@ -1,4 +1,4 @@
-CFLAGS += -Wall -Wextra -Werror -std=c99 -march=native -flto=auto
+CFLAGS += -Wall -Wextra -Werror -std=c11 -march=native -flto=auto
 ifeq ($(FAST),true)
   CFLAGS += -Ofast
 else
