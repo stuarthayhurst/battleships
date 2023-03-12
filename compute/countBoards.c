@@ -9,12 +9,12 @@ struct DataPtrs {
   unsigned long long int* totalBoardsPtr;
   unsigned int boardMemSize;
   int boardWidth;
-  char* boardPtr;
+  int* boardPtr;
   int validShipIndicesCount;
   int* validShipIndicesPtr;
 };
 
-bool placePiece(char* origBoardPtr, char* newBoardPtr, unsigned int boardMemSize, int boardWidth, int shipLength, int x, int y, bool rotated) {
+bool placePiece(int* origBoardPtr, int* newBoardPtr, unsigned int boardMemSize, int boardWidth, int shipLength, int x, int y, bool rotated) {
   //Check for a ship collision
   if (rotated) {
     //Iterate vertically over the board
@@ -99,7 +99,7 @@ void compute(struct DataPtrs* dataPtrsPtr) {
     requiredData.validShipIndicesCount = newShipCount;
 
     //Create a new empty board, to copy the last good board onto when placing a ship
-    char newBoard[boardWidth * boardWidth];
+    int newBoard[boardWidth * boardWidth];
 
     int shipLength = dataPtrsPtr->shipLengthsPtr[validShipIndex];
     int reducedLength = boardWidth - (shipLength - 1);
@@ -145,7 +145,7 @@ int main() {
   int shipLengths[5] = {5, 4, 3, 3, 2};
   const unsigned int boardWidth = 7;
 
-  char board[boardWidth * boardWidth];
+  int board[boardWidth * boardWidth];
   unsigned long long int totalBoards = 0;
 
   //Initialise with 0s
