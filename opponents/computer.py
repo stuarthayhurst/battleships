@@ -247,9 +247,12 @@ class Opponent():
 
       return path
 
-    #Identify any unsunk patch of ships (when hits touch eachother, with no sunk tiles)
+    #If last guess was a hit that didn't sink, add it to known unsunk ships
     path = []
-    self.unsunkHits = []
+    if wasHit and not didSink:
+      path.append([self.lastMove[0], self.lastMove[1]])
+
+    #Identify any unsunk patch of ships (when hits touch eachother, with no sunk tiles)
     for rowNum in range(len(self.opponentGrid)):
       for colNum in range(len(self.opponentGrid)):
         if self.opponentGrid[rowNum][colNum] == 1:
