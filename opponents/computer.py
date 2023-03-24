@@ -247,6 +247,10 @@ class Opponent():
 
       return path
 
+    #Clear list of unsunk ships if one was sunk
+    if didSink:
+      self.unsunkHits = []
+
     #If last guess was a hit that didn't sink, add it to known unsunk ships
     path = []
     if wasHit and not didSink:
@@ -260,7 +264,7 @@ class Opponent():
           value = checkHit(self.opponentGrid, seenHits, [colNum, rowNum])
           if value != "seen" and value != "fail":
             path += value
-    self.unsunkHits = path
+    self.unsunkHits += path
 
     temp = []
     for hit in self.unsunkHits:
