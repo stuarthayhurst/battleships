@@ -340,7 +340,7 @@ class Opponent():
               if failed:
                 continue
 
-            #If a lone hit is present, possible ships must intersect
+            #If an unsunk hit is present, possible ships must intersect
             if mustIntersectUnsunk:
               passed = False
               if not flipped:
@@ -389,92 +389,18 @@ class Opponent():
         if grid[rowNum][colNum] != 0:
           probs[rowNum][colNum] = 0
 
-    #Find the highest probability of a ship being there
+    #Select the tile with the highest probability of containing a ship
     maxProb = 0
-    for row in probs:
-      for prob in row:
-        if prob > maxProb:
-          maxProb = prob
-
-    #Mark all high probability tiles with "X", set the rest to "0"
     for rowNum in range(len(probs)):
       for colNum in range(len(probs[0])):
-        if probs[rowNum][colNum] == maxProb:
-          probs[rowNum][colNum] = "0"
-        else:
-          probs[rowNum][colNum] = "X"
-
-    #Guess most efficient high probability tile
-    [x, y] = self.cutGrid(probs)
+        if probs[rowNum][colNum] > maxProb:
+          maxProb = probs[rowNum][colNum]
+          [x, y] = [colNum, rowNum]
 
     self.lastMove = [x, y]
     if self.opponentGrid[y][x] != 0:
       input("Duplicate move, something has gone wrong")
     return [x, y]
-
-
-
-
-
-  def getFreeSpace(self, x, y, usedMoves):
-    free = True
-    freeCount = 1
-
-    #Find free space after it on the same row
-    for i in range(x + 1, len(usedMoves[0])):
-      tile = usedMoves[y][i]
-      if tile == "0":
-        freeCount += 1
-      else:
-        break
-
-    #Find free space before it on the same row
-    for i in range(x - 1, -1, -1):
-      tile = usedMoves[y][i]
-      if tile == "0":
-        freeCount += 1
-      else:
-        break
-
-    #Find free space after it on the same column
-    for i in range(y + 1, len(usedMoves)):
-      tile = usedMoves[i][x]
-      if tile == "0":
-        freeCount += 1
-      else:
-        break
-
-    #Find free space before it on the same column
-    for i in range(y - 1, -1, -1):
-      tile = usedMoves[i][x]
-      if tile == "0":
-        freeCount += 1
-      else:
-        break
-
-    return freeCount
-
-  def cutGrid(self, usedMoves):
-    optimalLength = 0
-    optimalTargets = []
-
-    #Identify the largest free spaces
-    for rowNum in range(0, len(usedMoves)):
-      for colNum in range(0, len(usedMoves[0])):
-        if usedMoves[rowNum][colNum] == "0":
-          #Get number of free spaces in line with the coord
-          freeLength = self.getFreeSpace(colNum, rowNum, usedMoves)
-          #If it's equivalent to the best target, remember it
-          if freeLength == optimalLength:
-            optimalTargets.append([colNum, rowNum])
-          #If it's better than the old best target, forget all remembered coords and remember this one
-          elif freeLength > optimalLength:
-            optimalLength = freeLength
-            optimalTargets = [[colNum, rowNum]]
-
-    #Pick best target at random from candidates, to hide any patern that may form
-    target = optimalTargets[random.randint(0, len(optimalTargets) - 1)]
-    return target
 
   def placeShips(self):
     return gameHelper.generateBoard(7)
