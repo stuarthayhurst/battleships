@@ -308,10 +308,11 @@ class Opponent():
     if self.hitsMade > 17 - minSize:
       mustIntersect = True
 
+#TODO
     #If an unsunk ship is present, any ship must intersect it
-    mustIntersectUnsunk = False
+    isUnsunkPresent = False
     if len(self.unsunkHits) != 0:
-      mustIntersectUnsunk = True
+      isUnsunkPresent = True
 
     #Attempt to identify all possible locations for enemy pieces left
     for ship in self.remainingIdentifiers:
@@ -346,53 +347,39 @@ class Opponent():
               if failed:
                 continue
 
-            #If an unsunk hit is present, possible ships must intersect
+            #Check for intersect and boost probability for any hits, and extra for unsunk hits
             boost = 1.0
-            if mustIntersectUnsunk:
-              passed = False
-              if not flipped:
-                for i in range(colNum, colNum + shipLength):
-                  for unsunkHit in self.unsunkHits:
-                    if unsunkHit[0] == i and unsunkHit[1] == rowNum:
-                      passed = True
-                      boost += 1000
-                if not passed:
-                  continue
-              else:
-                for i in range(rowNum, rowNum + shipLength):
-                  for unsunkHit in self.unsunkHits:
-                    if unsunkHit[0] == colNum and unsunkHit[1] == i:
-                      passed = True
-                      boost += 1000
-                if not passed:
-                  continue
+            intersects = False
+            if not flipped:
+              for i in range(colNum, colNum + shipLength):
+                if grid[rowNum][i] == 1:
+                  boost += 1000
+                  intersects = True
+                for unsunkHit in self.unsunkHits:
+                  if unsunkHit[0] == i and unsunkHit[1] == rowNum:
+                    boost += 1000
+            else:
+              for i in range(rowNum, rowNum + shipLength):
+                if grid[i][colNum] == 1:
+                  boost += 1000
+                  intersects = True
+                for unsunkHit in self.unsunkHits:
+                  if unsunkHit[0] == colNum and unsunkHit[1] == i:
+                    boost += 1000
 
-            if mustIntersect:
-              passed = False
-              if not flipped:
-                for i in range(colNum, colNum + shipLength):
-                  if grid[rowNum][i] == 1:
-                    passed = True
-                    boost += 1000
-                if not passed:
-                  continue
-              else:
-                for i in range(rowNum, rowNum + shipLength):
-                  if grid[i][colNum] == 1:
-                    passed = True
-                    boost += 1000
-                if not passed:
-                  continue
+            #Only count if the ship intersects when required (if all ships have been hit)
+            if mustIntersect and not intersects:
+              continue
 
             #Increment the probability of a ship being in that tile, anywhere the ship would cross
             if not flipped:
               for i in range(colNum, colNum + shipLength):
-                prob = probs[rowNum][i] + 1
-                probs[rowNum][i] = prob * boost
+                prob = probs[rowNum][i] + (1 * boost)
+                probs[rowNum][i] = prob
             else:
               for i in range(rowNum, rowNum + shipLength):
-                prob = probs[i][colNum] + 1
-                probs[i][colNum] = prob * boost
+                prob = probs[i][colNum] + (1 * boost)
+                probs[i][colNum] = prob
 
     #If the tile has already been guessed, set the probability to 0
     for rowNum in range(len(probs)):
