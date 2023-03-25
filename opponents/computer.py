@@ -341,6 +341,7 @@ class Opponent():
                 continue
 
             #If an unsunk hit is present, possible ships must intersect
+            boost = 1.0
             if mustIntersectUnsunk:
               passed = False
               if not flipped:
@@ -348,6 +349,7 @@ class Opponent():
                   for unsunkHit in self.unsunkHits:
                     if unsunkHit[0] == i and unsunkHit[1] == rowNum:
                       passed = True
+                      boost += 1000
                 if not passed:
                   continue
               else:
@@ -355,6 +357,7 @@ class Opponent():
                   for unsunkHit in self.unsunkHits:
                     if unsunkHit[0] == colNum and unsunkHit[1] == i:
                       passed = True
+                      boost += 1000
                 if not passed:
                   continue
 
@@ -364,12 +367,14 @@ class Opponent():
                 for i in range(colNum, colNum + shipLength):
                   if grid[rowNum][i] == 1:
                     passed = True
+                    boost += 1000
                 if not passed:
                   continue
               else:
                 for i in range(rowNum, rowNum + shipLength):
                   if grid[i][colNum] == 1:
                     passed = True
+                    boost += 1000
                 if not passed:
                   continue
 
@@ -377,11 +382,11 @@ class Opponent():
             if not flipped:
               for i in range(colNum, colNum + shipLength):
                 prob = probs[rowNum][i] + 1
-                probs[rowNum][i] = prob
+                probs[rowNum][i] = prob * boost
             else:
               for i in range(rowNum, rowNum + shipLength):
                 prob = probs[i][colNum] + 1
-                probs[i][colNum] = prob
+                probs[i][colNum] = prob * boost
 
     #If the tile has already been guessed, set the probability to 0
     for rowNum in range(len(probs)):
