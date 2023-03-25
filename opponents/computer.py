@@ -10,20 +10,6 @@ import gameHelper
 # -  2 : destroyed ship - calculated
 # -  3 : destroyed ship - feedback
 
-#TODO: update this
-#If the last hit was successful, try guessing around it in a circle
-# Swap the order of locations guessed around it, to prevent players figuring out a strategy
-#If any of these hit, follow in the same direction
-#If it reaches the end of a ship, try the other end
-#Once a ship is sunk, go back to searching for ships
-#If the the AI didn't sink the ship and can't find a new location, fall back to searching (happens when shooting at 2 ships at once)
-
-#When searching for a ship:
-#When all hit tiles are accounted for with downed ships, those hits can be guaranteed to have no live ship on
-#These can be made impossible, along with the hits that sank ships, and empty tiles
-#Then figure out every possible ship location, using these impossible tiles as reference, and guess the tile with the highest probability of having a ship
-#Use the middle of the largest continuous space of high probability as the guess
-
 class Opponent():
   def __init__(self):
     self.opponentGrid = [[0 for i in range(7)] for j in range(7)]
@@ -34,32 +20,6 @@ class Opponent():
 
     self.shipInfo = {"c": 5, "b": 4, "d": 3, "s": 3, "p": 2}
     self.remainingIdentifiers = list(self.shipInfo.keys())
-
-#TODO: any hit streak (including single hits) that doesn't hit a sunk ship at some point can be marked as an unsunk ship
-
-#TODO: logic to target any definitely unsunk hits
-#TODO: then fix logic to follow a thread (might not need - but could be good at keep trying to hit a ship until it gets a new sunk marker)
-
-#TODO: improve cut grid and getFreeSpace code
-#TODO: - Update this logic to split a section in min turns (straddle centre), benchmark
-
-#TODO: rewrite algorithm overview
-# - Add a copy to the readme
-# - In the readme, mention the performance improvements from using pypy3
-# - Document each subproject
-
-
-#If all ships have been hit, require guesses to aim for ships passing through an unresolved hit
-#If guaranteed unsunk ships remain, boost the probability for ships passing through this (experiment with coefficient)
-
-#TODO: - rewrite this, neaten up and move other plans to list at top of doc
-# - Maths to decide if all ships have been hit, and if true then all guessed locations must be aiming for a ship intersecting a previous non-sunk hit
-# - Lean more on probability distribution
-# - Grid splitting should plan ahead, depending on the size of ship it's looking for
-
-#When a ship has sunk, mark all tiles of that ship as sunk, if possible
-
-#Attempt to identify when a ship has been hit and not sunk
 
   def feedbackMove(self, wasHit, didSink, destroyedShip):
     marker = -1
@@ -307,12 +267,6 @@ class Opponent():
     mustIntersect = False
     if self.hitsMade > 17 - minSize:
       mustIntersect = True
-
-#TODO
-    #If an unsunk ship is present, any ship must intersect it
-    isUnsunkPresent = False
-    if len(self.unsunkHits) != 0:
-      isUnsunkPresent = True
 
     #Attempt to identify all possible locations for enemy pieces left
     for ship in self.remainingIdentifiers:
