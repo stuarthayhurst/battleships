@@ -1,12 +1,13 @@
 #!/usr/bin/python3
 import os, time, sys
 
+import gameHelper
+
 import opponents.player as player
 import opponents.computer as computer
 import opponents.random as randomComputer
 
 #TODO:
-# - Update player controller (+ remove old files)
 # - Finish computer opponent
 # - Allow variable board sizes
 
@@ -111,44 +112,6 @@ class GameController:
     self.controllers[0] = controllers[0]()
     self.controllers[1] = controllers[1]()
 
-  #Print the passed grid
-  def drawGrid(self, grid, hideShips):
-    #Print a line of text with the given colour
-    def getColoured(text, colour):
-      return f"{colour}{text}\033[0m"
-
-    def getRowRef(rowNum):
-      #Prefix a zero if single digit
-      if rowNum < 10:
-        return f"0{rowNum}"
-      return str(rowNum)
-
-    #Get a string of alphabetical grid references (A -> upper bound)
-    colRef = f"   {''.join([chr(i + 65) for i in range(len(grid[0]))])}"
-    print(colRef)
-
-    #Iterate over grid coords
-    for rowNum, row in enumerate(grid):
-      rowRef = getRowRef(rowNum + 1)
-      rowBuffer = f"{rowRef} "
-
-      #Show each grid point
-      for col in row:
-        #Print hit markers in red
-        if col == "X":
-          rowBuffer += getColoured(col, "\033[31m")
-        elif col in self.pieceIdentifiers and not hideShips:
-          rowBuffer += getColoured(col, "\033[94m")
-        elif col == " ":
-          rowBuffer += " "
-        else:
-          rowBuffer += "0"
-
-      rowBuffer += f" {rowRef}"
-      print(rowBuffer)
-
-    print(colRef)
-
   def start(self):
     #Start game timer
     self.startTime = time.time()
@@ -161,7 +124,7 @@ class GameController:
 
     for i in [0, 1]:
       os.system("clear")
-      self.grids[i] = self.controllers[i].placeShips()
+      self.grids[i] = self.controllers[i].placeShips(pieceInfo)
       convertBoard(self.grids[i])
 
     winner = ""
@@ -169,7 +132,7 @@ class GameController:
       for i in [0, 1]:
         #Draw controller's hits
         os.system("clear")
-        self.drawGrid(self.grids[1 - i], True)
+        gameHelper.drawGrid(self.grids[1 - i], True, self.pieceIdentifiers)
 
         #Get next move from controller
         print(f"Player {i + 1}'s guess:")

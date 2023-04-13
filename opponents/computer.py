@@ -354,5 +354,5 @@ class Opponent():
       input("Duplicate move, something has gone wrong")
     return [x, y]
 
-  def placeShips(self):
+  def placeShips(self, pieceInfo):
     return gameHelper.generateBoard(7)

@@ -55,3 +55,41 @@ def searchGrid(grid, identifier):
     if identifier in row:
       return True
   return False
+
+#Print the passed grid
+def drawGrid(grid, hideShips, pieceIdentifiers):
+  #Print a line of text with the given colour
+  def getColoured(text, colour):
+    return f"{colour}{text}\033[0m"
+
+  def getRowRef(rowNum):
+    #Prefix a zero if single digit
+    if rowNum < 10:
+      return f"0{rowNum}"
+    return str(rowNum)
+
+  #Get a string of alphabetical grid references (A -> upper bound)
+  colRef = f"   {''.join([chr(i + 65) for i in range(len(grid[0]))])}"
+  print(colRef)
+
+  #Iterate over grid coords
+  for rowNum, row in enumerate(grid):
+    rowRef = getRowRef(rowNum + 1)
+    rowBuffer = f"{rowRef} "
+
+    #Show each grid point
+    for col in row:
+      #Print hit markers in red
+      if col == "X":
+        rowBuffer += getColoured(col, "\033[31m")
+      elif col in pieceIdentifiers and not hideShips:
+        rowBuffer += getColoured(col, "\033[94m")
+      elif col == " ":
+        rowBuffer += " "
+      else:
+        rowBuffer += "0"
+
+    rowBuffer += f" {rowRef}"
+    print(rowBuffer)
+
+  print(colRef)

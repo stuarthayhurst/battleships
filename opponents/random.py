@@ -20,5 +20,5 @@ class Opponent:
   def feedbackMove(self, wasHit, didSink, destroyedShip):
     pass
 
-  def placeShips(self):
+  def placeShips(self, pieceInfo):
     return gameHelper.generateBoard(7)
