@@ -36,3 +36,4 @@
 
 ## To-do:
   - Finish to-do list in `battleships.py`
+  - Add neural network based opponent

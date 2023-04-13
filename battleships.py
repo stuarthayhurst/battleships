@@ -8,7 +8,6 @@ import opponents.random as randomComputer
 #TODO:
 # - Update player controller (+ remove old files)
 # - Finish computer opponent
-# - Implement neural network opponent
 # - Allow variable board sizes
 
 #Board identifiers, as well as corresponding names and ship lengths

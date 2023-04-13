@@ -8,10 +8,8 @@ if len(sys.argv) > 1:
     import opponents.random as opponent
   elif sys.argv[1] == "computer":
     import opponents.computer as opponent
-  elif sys.argv[1] == "neural":
-    import opponents.neural as opponent
 else:
-  print("Opponent required [random, computer, neural]")
+  print("Opponent required [random, computer]")
   exit(1)
 
 sampleSize = 1000
