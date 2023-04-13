@@ -4,13 +4,14 @@ import random
 import gameHelper
 
 class Opponent:
-  def __init__(self):
-    self.opponentGrid = [[0 for i in range(7)] for j in range(7)]
+  def __init__(self, boardSize):
+    self.boardSize = boardSize
+    self.opponentGrid = [[0 for i in range(boardSize)] for j in range(boardSize)]
 
   def makeMove(self):
     valid = False
     while not valid:
-      x, y = random.randint(0, 6), random.randint(0, 6)
+      x, y = random.randint(0, self.boardSize - 1), random.randint(0, self.boardSize - 1)
 
       valid = self.opponentGrid[y][x] == 0
 
@@ -21,4 +22,4 @@ class Opponent:
     pass
 
   def placeShips(self, pieceInfo):
-    return gameHelper.generateBoard(7)
+    return gameHelper.generateBoard(self.boardSize)

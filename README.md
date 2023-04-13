@@ -35,5 +35,4 @@
     | C      | 2m 41s   | 93,040,000       |
 
 ## To-do:
-  - Finish to-do list in `battleships.py`
   - Add neural network based opponent

@@ -11,8 +11,9 @@ import gameHelper
 # -  3 : destroyed ship - feedback
 
 class Opponent():
-  def __init__(self):
-    self.opponentGrid = [[0 for i in range(7)] for j in range(7)]
+  def __init__(self, boardSize):
+    self.boardSize = boardSize
+    self.opponentGrid = [[0 for i in range(boardSize)] for j in range(boardSize)]
     self.lastMove = [None, None]
     self.lastHit = [None, None]
     self.unsunkHits = []
@@ -52,8 +53,8 @@ class Opponent():
 
     #If all hits are on destroyed ships, mark them as such
     if self.hitsMade == sunkTiles:
-      for col in range(7):
-        for row in range(7):
+      for col in range(self.boardSize):
+        for row in range(self.boardSize):
           if self.opponentGrid[col][row] == 1:
             self.opponentGrid[col][row] = 2
 
@@ -63,7 +64,7 @@ class Opponent():
       horizStreak = 0
       streakLength = 0
       streakPos = [None, None]
-      for col in range(7):
+      for col in range(self.boardSize):
         if self.opponentGrid[self.lastMove[1]][col] == 1 or col == self.lastMove[0]:
           if not streak:
             streak = True
@@ -83,7 +84,7 @@ class Opponent():
           streak = False
       if intersects:
         horizStreak = streakLength
-        streakPos[1] = 6
+        streakPos[1] = self.boardSize - 1
 
       horizPos = [streakPos[0], streakPos[1]]
 
@@ -92,7 +93,7 @@ class Opponent():
       vertStreak = 0
       streakLength = 0
       streakPos = [None, None]
-      for row in range(7):
+      for row in range(self.boardSize):
         if self.opponentGrid[row][self.lastMove[0]] == 1 or row == self.lastMove[1]:
           if not streak:
             streak = True
@@ -112,7 +113,7 @@ class Opponent():
           streak = False
       if intersects:
         vertStreak = streakLength
-        streakPos[1] = 6
+        streakPos[1] = self.boardSize - 1
 
       vertPos = [streakPos[0], streakPos[1]]
 
@@ -142,7 +143,7 @@ class Opponent():
           unclearDirection = "left"
           unclearCount += 1
 
-      if lastX < 6:
+      if lastX < self.boardSize - 1:
         if self.opponentGrid[self.lastMove[1]][lastX + 1] > 0:
           unclearDirection = "right"
           unclearCount += 1
@@ -152,7 +153,7 @@ class Opponent():
           unclearDirection = "above"
           unclearCount += 1
 
-      if lastY < 6:
+      if lastY < self.boardSize - 1:
         if self.opponentGrid[lastY + 1][self.lastMove[0]] > 0:
           unclearDirection = "below"
           unclearCount += 1
@@ -194,9 +195,9 @@ class Opponent():
 
       path = [position]
       for newPosition in positions:
-        if newPosition[0] < 0 or newPosition[0] > 6:
+        if newPosition[0] < 0 or newPosition[0] > self.boardSize - 1:
           continue
-        if newPosition[1] < 0 or newPosition[1] > 6:
+        if newPosition[1] < 0 or newPosition[1] > self.boardSize - 1:
           continue
 
         value = checkHit(grid, seenHits, newPosition)
@@ -255,7 +256,7 @@ class Opponent():
   def makeMove(self):
     #Create grid of impossible tiles and empty grid for probabilities
     grid = self.opponentGrid
-    probs = [[0 for i in range(7)] for j in range(7)]
+    probs = [[0 for i in range(self.boardSize)] for j in range(self.boardSize)]
 
     #Calculate smallest remaining ship
     minSize = 5
@@ -355,4 +356,4 @@ class Opponent():
     return [x, y]
 
   def placeShips(self, pieceInfo):
-    return gameHelper.generateBoard(7)
+    return gameHelper.generateBoard(self.boardSize)

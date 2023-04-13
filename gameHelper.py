@@ -46,7 +46,7 @@ def placeShips(grid, boardSize, pieceInfo):
 def generateBoard(size):
   pieceInfo = {"c": 5, "b": 4, "d": 3, "s": 3, "p": 2}
   grid = [[0 for i in range(size)] for j in range(size)]
-  placeShips(grid, 7, pieceInfo)
+  placeShips(grid, size, pieceInfo)
 
   return grid
 

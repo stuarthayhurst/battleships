@@ -4,8 +4,9 @@ import os, random
 import gameHelper
 
 class Opponent:
-  def __init__(self):
-    self.opponentGrid = [[0 for i in range(7)] for j in range(7)]
+  def __init__(self, boardSize):
+    self.boardSize = boardSize
+    self.opponentGrid = [[0 for i in range(boardSize)] for j in range(boardSize)]
 
   def referenceToPosition(self, position):
     try:
@@ -61,7 +62,7 @@ class Opponent:
     pass
 
   def placeShips(self, pieceInfo):
-    userBoard = [[0 for i in range(7)] for j in range(7)]
+    userBoard = [[0 for i in range(self.boardSize)] for j in range(self.boardSize)]
 
     remainingShips = list(pieceInfo.keys())
 

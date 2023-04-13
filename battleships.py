@@ -7,10 +7,6 @@ import opponents.player as player
 import opponents.computer as computer
 import opponents.random as randomComputer
 
-#TODO:
-# - Finish computer opponent
-# - Allow variable board sizes
-
 #Board identifiers, as well as corresponding names and ship lengths
 pieceIdentifiers = ["c", "b", "d", "s", "p"]
 pieceInfo = {
@@ -107,10 +103,10 @@ class GameController:
     gridHeight = len(self.grids[0])
     self.grids = self.createGrids(gridWidth, gridHeight)
 
-  def addPlayers(self, controllers):
+  def addPlayers(self, controllers, boardSize):
     #Create a controller for each player
-    self.controllers[0] = controllers[0]()
-    self.controllers[1] = controllers[1]()
+    self.controllers[0] = controllers[0](boardSize)
+    self.controllers[1] = controllers[1](boardSize)
 
   def start(self):
     #Start game timer
@@ -185,14 +181,15 @@ if len(sys.argv) > 1:
 game = GameController(pieceIdentifiers, pieceInfo, delayLength)
 
 #Use standard 7x7 setup
-if not game.setup(7, 7):
+boardSize = 10
+if not game.setup(boardSize, boardSize):
   input("Failed to create grids, exiting")
   exit(1)
 
 while True:
   try:
     #Handle each run of the game
-    game.addPlayers(players)
+    game.addPlayers(players, boardSize)
     game.start()
     game.printRuntime()
     #Reset player ships and moves to blank grids
