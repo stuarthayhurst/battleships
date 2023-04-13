@@ -8,6 +8,9 @@ if len(sys.argv) > 1:
     import opponents.random as opponent
   elif sys.argv[1] == "computer":
     import opponents.computer as opponent
+  else:
+    print(f"Invalid opponent '{sys.argv[1]}'")
+    exit(1)
 else:
   print("Opponent required [random, computer]")
   exit(1)
