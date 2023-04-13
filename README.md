@@ -33,6 +33,3 @@
     | Python | 294m 18s | 847,800          |
     | Pypy3  | 46m 19s  | 5,389,000        |
     | C      | 2m 41s   | 93,040,000       |
-
-## To-do:
-  - Add neural network based opponent
