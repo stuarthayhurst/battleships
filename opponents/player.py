@@ -86,6 +86,9 @@ class Opponent:
         else:
           #Parse input reference
           position = self.referenceToPosition(action)
+          if not position:
+            input("Invalid format")
+            continue
 
           #Check the guess is within the board
           if position[0] < 0 or position[0] > len(userBoard) - 1:
