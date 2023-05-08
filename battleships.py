@@ -181,7 +181,7 @@ if len(sys.argv) > 1:
 game = GameController(pieceIdentifiers, pieceInfo, delayLength)
 
 #Use standard 7x7 setup
-boardSize = 10
+boardSize = 7
 if not game.setup(boardSize, boardSize):
   input("Failed to create grids, exiting")
   exit(1)
