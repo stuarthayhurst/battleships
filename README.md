@@ -20,7 +20,9 @@
     - Using 5 ships and a width of 7, this gives ~1.1 trillion combinations to try
   - Alternatively, `compute/countBoards.c` is a C implementation of the same algorithm
     - This runs in about 2 minutes and 42 seconds, using a Ryzen 5 5600X
-    - Compile: `FAST="true" make -C compute`
+    - Compile: `make -C compute`
+      - Supports `FAST=[true/false]` to enable additional optimisations
+      - Supports `DEBUG=[true/false]` to enable debug symbols
     - Run: `./compute/countBoards`
   - These programs don't save the boards, but could easily be modified to save or print them
   - Comparison of implementation performance:
