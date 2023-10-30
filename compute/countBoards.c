@@ -22,17 +22,21 @@ bool placePiece(int* origBoardPtr, int* newBoardPtr, unsigned int boardMemSize, 
     int start = (y * boardWidth) + x;
     int stop = start + (shipLength * boardWidth);
     for (int i = start; i < stop; i += boardWidth) {
-      if (origBoardPtr[i] != 0) {
-        return false;
+      if (origBoardPtr[i] == 0) {
+        continue;
       }
+
+      return false;
     }
   } else {
     //Iterate horizontally over the board
     int start = (y * boardWidth) + x;
     for (int i = start; i < start + shipLength; i++) {
-      if (origBoardPtr[i] != 0) {
-        return false;
+      if (origBoardPtr[i] == 0) {
+        continue;
       }
+
+      return false;
     }
   }
 
