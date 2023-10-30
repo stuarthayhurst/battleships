@@ -66,12 +66,13 @@ bool placePiece(int* origBoardPtr, int* newBoardPtr,
 void compute(struct DataPtrs* dataPtrsPtr) {
   //Return if all ships have been placed
   if (dataPtrsPtr->validShipIndicesCount == 0) {
-    //Increase total valid boards found, print every 10 million
+    //Increase total valid boards found, only print every 10 million
     (*dataPtrsPtr->totalBoardsPtr)++;
-    if ((*dataPtrsPtr->totalBoardsPtr) % 10000000 == 0) {
-      printf("Found valid board %lli\n", (*dataPtrsPtr->totalBoardsPtr));
+    if ((*dataPtrsPtr->totalBoardsPtr) % 10000000 != 0) {
+      return;
     }
 
+    printf("Found valid board %lli\n", (*dataPtrsPtr->totalBoardsPtr));
     return;
   }
 
