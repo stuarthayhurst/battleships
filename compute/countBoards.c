@@ -4,6 +4,7 @@
 #include <string.h>
 #include <time.h>
 
+//Note: Attribute order must not be changed
 struct DataPtrs {
   int* shipLengthsPtr;
   unsigned long long int* totalBoardsPtr;
@@ -71,10 +72,10 @@ void compute(struct DataPtrs* dataPtrsPtr) {
 
   //Copy across constant values between recursions
   struct DataPtrs requiredData;
-  requiredData.shipLengthsPtr = dataPtrsPtr->shipLengthsPtr;
-  requiredData.totalBoardsPtr = dataPtrsPtr->totalBoardsPtr;
-  requiredData.boardMemSize = dataPtrsPtr->boardMemSize;
-  requiredData.boardWidth = dataPtrsPtr->boardWidth;
+  memcpy(&requiredData, dataPtrsPtr, sizeof(requiredData.shipLengthsPtr) +
+                                     sizeof(requiredData.totalBoardsPtr) +
+                                     sizeof(requiredData.boardMemSize) +
+                                     sizeof(requiredData.boardWidth));
 
   int boardWidth = dataPtrsPtr->boardWidth;
   for (int rawShipIndex = 0; rawShipIndex < dataPtrsPtr->validShipIndicesCount; rawShipIndex++) {
