@@ -16,10 +16,13 @@ struct DataPtrs {
 };
 
 bool placePiece(int* origBoardPtr, int* newBoardPtr, unsigned int boardMemSize, int boardWidth, int shipLength, int x, int y, bool rotated) {
+
+  //Starting index for the ship
+  int start = (y * boardWidth) + x;
+
   //Check for a ship collision
   if (rotated) {
     //Iterate vertically over the board
-    int start = (y * boardWidth) + x;
     int stop = start + (shipLength * boardWidth);
     for (int i = start; i < stop; i += boardWidth) {
       if (origBoardPtr[i] == 0) {
@@ -30,7 +33,6 @@ bool placePiece(int* origBoardPtr, int* newBoardPtr, unsigned int boardMemSize, 
     }
   } else {
     //Iterate horizontally over the board
-    int start = (y * boardWidth) + x;
     for (int i = start; i < start + shipLength; i++) {
       if (origBoardPtr[i] == 0) {
         continue;
@@ -46,14 +48,12 @@ bool placePiece(int* origBoardPtr, int* newBoardPtr, unsigned int boardMemSize, 
   //Place the ship
   if (rotated) {
     //Iterate vertically over the board
-    int start = (y * boardWidth) + x;
     int stop = start + (shipLength * boardWidth);
     for (int i = start; i < stop; i += boardWidth) {
       newBoardPtr[i] = 1;
     }
   } else {
     //Iterate horizontally over the board
-    int start = (y * boardWidth) + x;
     for (int i = start; i < start + shipLength; i++) {
       newBoardPtr[i] = 1;
     }
