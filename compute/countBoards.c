@@ -15,8 +15,9 @@ struct DataPtrs {
   int* validShipIndicesPtr;
 };
 
-bool placePiece(int* origBoardPtr, int* newBoardPtr, unsigned int boardMemSize, int boardWidth, int shipLength, int x, int y, bool rotated) {
-
+bool placePiece(int* origBoardPtr, int* newBoardPtr,
+                unsigned int boardMemSize, int boardWidth,
+                int shipLength, int x, int y, bool rotated) {
   //Starting index for the ship
   int start = (y * boardWidth) + x;
 
