@@ -110,35 +110,31 @@ void compute(struct DataPtrs* dataPtrsPtr) {
 
     int shipLength = dataPtrsPtr->shipLengthsPtr[validShipIndex];
     int reducedLength = boardWidth - (shipLength - 1);
-    for (int rotated = 0; rotated <= 1; rotated++) {
-      bool rotatedBool = (bool)rotated;
-      if (rotatedBool) {
-        //Rotated vertically
-        for (int x = 0; x < boardWidth; x++) {
-          for (int y = 0; y < reducedLength; y++) {
-            //Attempt to place the current ship on the new board
-            bool success = placePiece(dataPtrsPtr->boardPtr, newBoard, dataPtrsPtr->boardMemSize, boardWidth, shipLength, x, y, rotatedBool);
 
-            //Move on to the next ship
-            if (success) {
-              requiredData.boardPtr = newBoard;
-              compute(&requiredData);
-            }
-          }
+    //Rotated vertically
+    for (int x = 0; x < boardWidth; x++) {
+      for (int y = 0; y < reducedLength; y++) {
+        //Attempt to place the current ship on the new board
+        bool success = placePiece(dataPtrsPtr->boardPtr, newBoard, dataPtrsPtr->boardMemSize, boardWidth, shipLength, x, y, true);
+
+        //Move on to the next ship
+        if (success) {
+          requiredData.boardPtr = newBoard;
+          compute(&requiredData);
         }
-      } else {
-        //Rotated horizontally
-        for (int x = 0; x < reducedLength; x++) {
-          for (int y = 0; y < boardWidth; y++) {
-            //Attempt to place the current ship on the new board
-            bool success = placePiece(dataPtrsPtr->boardPtr, newBoard, dataPtrsPtr->boardMemSize, boardWidth, shipLength, x, y, rotatedBool);
+      }
+    }
 
-            //Move on to the next ship
-            if (success) {
-              requiredData.boardPtr = newBoard;
-              compute(&requiredData);
-            }
-          }
+    //Rotated horizontally
+    for (int x = 0; x < reducedLength; x++) {
+      for (int y = 0; y < boardWidth; y++) {
+        //Attempt to place the current ship on the new board
+        bool success = placePiece(dataPtrsPtr->boardPtr, newBoard, dataPtrsPtr->boardMemSize, boardWidth, shipLength, x, y, false);
+
+        //Move on to the next ship
+        if (success) {
+          requiredData.boardPtr = newBoard;
+          compute(&requiredData);
         }
       }
     }
