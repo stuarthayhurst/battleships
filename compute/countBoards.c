@@ -5,6 +5,7 @@
 #include <time.h>
 
 //Note: Attribute order must not be changed
+//Note: If types change, CopyData will need updating too
 struct DataPtrs {
   int* shipLengthsPtr;
   unsigned long long int* totalBoardsPtr;
@@ -14,6 +15,9 @@ struct DataPtrs {
   int validShipIndicesCount;
   int* validShipIndicesPtr;
 };
+
+//Struct for the data frequently copied, only to calculate the size
+struct CopyData {int* a; unsigned long long int* b; unsigned int c; int d;};
 
 bool placePiece(int* origBoardPtr, int* newBoardPtr,
                 unsigned int boardMemSize, int boardWidth,
@@ -78,10 +82,7 @@ void compute(struct DataPtrs* dataPtrsPtr) {
 
   //Copy across constant values between recursions
   struct DataPtrs requiredData;
-  memcpy(&requiredData, dataPtrsPtr, sizeof(requiredData.shipLengthsPtr) +
-                                     sizeof(requiredData.totalBoardsPtr) +
-                                     sizeof(requiredData.boardMemSize) +
-                                     sizeof(requiredData.boardWidth));
+  memcpy(&requiredData, dataPtrsPtr, sizeof(struct CopyData));
 
   int boardWidth = dataPtrsPtr->boardWidth;
   for (int rawShipIndex = 0; rawShipIndex < dataPtrsPtr->validShipIndicesCount; rawShipIndex++) {
