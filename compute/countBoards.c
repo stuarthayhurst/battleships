@@ -132,10 +132,12 @@ void compute(struct DataPtrs* dataPtrsPtr) {
                              shipLength, y, x, false);
 
         //Move on to the next ship
-        if (success) {
-          requiredData.boardPtr = newBoard;
-          compute(&requiredData);
+        if (!success) {
+          continue;
         }
+
+        requiredData.boardPtr = newBoard;
+        compute(&requiredData);
       }
     }
   }
