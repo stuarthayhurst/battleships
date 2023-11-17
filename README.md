@@ -26,7 +26,7 @@
     - Run: `./compute/countBoards`
   - These programs don't save the boards, but could easily be modified to save or print them
   - Comparison of implementation performance:
-
+<br><br>
     | Runner + version     | Runtime  | Valid boards / s |
     |:---------------------|:---------|------------------|
     | Python (3.12)        | 247m 16s | 1,009,000        |
