@@ -16,7 +16,9 @@
   - `compute/countBoards.py` will calculate the number of valid battleships layouts from a grid size and list of ship lengths
   - The code has been written with `pypy3` in mind, and is strongly suggested to be used (~5x performance improvement)
   - This script takes around 45 minutes to run using a Ryzen 5 5600X and `pypy3`
-    - With `n` being the number of ships and `w` being with width of the board, the time compelxity scales with `O((w^2 * 2)^n * n!)`
+    - With `n` being the number of ships and `w` being with width of the board, the time complexity scales with `O((w^2 * 2)^n * n!)`
+      - This is the unoptimised time complexity, if every board was checked
+      - In reality, it likely won't scale this way, as most boards are discarded early
     - Using 5 ships and a width of 7, this gives ~1.1 trillion combinations to try
   - **Alternatively**, `compute/countBoards.c` is a C implementation of the same algorithm
     - This runs in about 2 minutes and 20 seconds, using a Ryzen 5 5600X
