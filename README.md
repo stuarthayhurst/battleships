@@ -25,6 +25,7 @@
     - Compile: `make -C compute`
       - Supports `FAST=[true/false]` to enable additional optimisations
       - Supports `DEBUG=[true/false]` to enable debug symbols
+      - Supports `AVX2=[true/false]` to disable AVX2 optimisations
     - Run: `./compute/countBoards`
   - These programs don't save the boards, but could easily be modified to save or print them
   - Comparison of implementation performance:
