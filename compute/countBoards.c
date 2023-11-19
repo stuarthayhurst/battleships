@@ -4,7 +4,7 @@
 #include <string.h>
 #include <time.h>
 
-#if defined(USE_AVX2)
+#if defined(USE_AVX2) && defined(__AVX2__)
   #include <immintrin.h>
 #endif
 
