@@ -71,7 +71,7 @@ bool placePiece(int32_t* origBoardPtr, int32_t* newBoardPtr,
     }
 
     //Check any remainder of the ship
-    uint16_t mask = _bzhi_u32(0xFF, shipLength % 16);
+    uint16_t mask = _bzhi_u32(0xFFFF, shipLength % 16);
     __m512i result = _mm512_maskz_loadu_epi32(mask, origBoardPtr + start + (shipLength - remainingLength));
 
     if (_mm512_reduce_add_epi32(result)) {
