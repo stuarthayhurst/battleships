@@ -21,7 +21,7 @@
       - In reality, it likely won't scale this way, as most boards are discarded early
     - Using 5 ships and a width of 7, this gives ~1.1 trillion combinations to try
   - **Alternatively**, `compute/countBoards.c` is a C implementation of the same algorithm
-    - This runs in about 2 minutes and 20 seconds, using a Ryzen 5 5600X
+    - This runs in about 2 minutes and 13 seconds, using a Ryzen 5 5600X
     - Compile: `make -C compute`
       - Supports `FAST=[true/false]` to enable additional optimisations
       - Supports `DEBUG=[true/false]` to enable debug symbols
@@ -34,4 +34,4 @@
     |:---------------------|:---------|------------------|
     | Python (3.12)        | 247m 16s | 1,009,000        |
     | Pypy3 (3.9 / 7.3.13) | 46m 19s  | 5,389,000        |
-    | C                    | 2m 20s   | 107,300,000      |
+    | C                    | 2m 13s   | 112,500,000      |
