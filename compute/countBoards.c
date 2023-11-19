@@ -5,13 +5,20 @@
 #include <string.h>
 #include <time.h>
 
-#if defined(USE_AVX2) && defined(__AVX2__)
+#if defined(USE_AVX512) && defined(__AVX512F__) && defined(__BMI2__)
+  #define USING_AVX512
+#elif defined(USE_AVX2) && defined(__AVX2__)
   #define USING_AVX2
+#endif
+
+#if defined(USING_AVX512) || defined(USING_AVX2)
   #include <immintrin.h>
 #endif
 
 #ifdef VERBOSE
-  #ifdef USING_AVX2
+  #ifdef USING_AVX512
+    #pragma message("Using AVX-512")
+  #elif defined(USING_AVX2)
     #pragma message("Using AVX2")
   #else
     #pragma message("Using scalar code")
@@ -51,7 +58,26 @@ bool placePiece(int32_t* origBoardPtr, int32_t* newBoardPtr,
       return false;
     }
   } else {
-#ifdef USING_AVX2
+#ifdef USING_AVX512
+    int remainingLength = shipLength % 16;
+    //Horizontally check for a ship on the board, using AVX-512
+    for (int i = 0; i < shipLength / 16; i++) {
+      __m512i result = _mm512_loadu_epi32((__m512i const *)(origBoardPtr + start + (i * 16)));
+      if (!_mm512_reduce_add_epi32(result)) {
+        continue;
+      }
+
+      return false;
+    }
+
+    //Check any remainder of the ship
+    uint16_t mask = _bzhi_u32(0xFF, shipLength % 16);
+    __m512i result = _mm512_maskz_loadu_epi32(mask, origBoardPtr + start + (shipLength - remainingLength));
+
+    if (_mm512_reduce_add_epi32(result)) {
+      return false;
+    }
+#elif defined(USING_AVX2)
     //Generate mask for loading ship
     int remainingLength = shipLength % 8;
     __m256i shipMask = _mm256_setr_epi32((0 < remainingLength) * -1,
