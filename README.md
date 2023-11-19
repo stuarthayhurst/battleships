@@ -28,7 +28,9 @@
       - Supports `DEBUG=[true/false]` to enable debug symbols and verbose build output
       - Supports `VERBOSE=[true/false]` to enable verbose build output
       - Supports `AVX2=[true/false]` to disable AVX2 optimisations
+        - Vector optimisations are enabled by default, when supported
       - Supports `AVX512=[true/false]` to disable AVX512 optimisations
+        - If `AVX2` and `AVX512` are both true, `AVX512` will be chosen
     - Run: `./compute/countBoards`
   - These programs don't save the boards, but could easily be modified to save or print them
   - Comparison of implementation performance:
