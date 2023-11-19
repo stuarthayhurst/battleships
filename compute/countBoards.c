@@ -4,6 +4,10 @@
 #include <string.h>
 #include <time.h>
 
+#if defined(USE_AVX2)
+  #include <immintrin.h>
+#endif
+
 //Note: Attribute order must not be changed
 //Note: If types change, CopyData will need updating too
 struct DataPtrs {
@@ -37,6 +41,34 @@ bool placePiece(int* origBoardPtr, int* newBoardPtr,
       return false;
     }
   } else {
+#if defined(USE_AVX2) && defined(__AVX2__)
+    //Generate mask for loading ship
+    int remainingLength = shipLength % 8;
+    __m256i shipMask = _mm256_setr_epi32((0 < remainingLength) * -1,
+                                         (1 < remainingLength) * -1,
+                                         (2 < remainingLength) * -1,
+                                         (3 < remainingLength) * -1,
+                                         (4 < remainingLength) * -1,
+                                         (5 < remainingLength) * -1,
+                                         (6 < remainingLength) * -1,
+                                         (7 < remainingLength) * -1);
+
+    //Horizontally check for a ship on the board, using AVX2
+    for (int i = 0; i < shipLength / 8; i++) {
+      __m256i result = _mm256_loadu_si256((__m256i const *)(origBoardPtr + start + (i * 8)));
+      if (_mm256_testz_si256(result, result)) {
+        continue;
+      }
+
+      return false;
+    }
+
+    //Check any remainder of the ship
+    __m256i result = _mm256_maskload_epi32(origBoardPtr + start + (shipLength - remainingLength), shipMask);
+    if (!_mm256_testz_si256(result, result)) {
+      return false;
+    }
+#else
     //Iterate horizontally over the board
     for (int i = start; i < start + shipLength; i++) {
       if (origBoardPtr[i] == 0) {
@@ -45,6 +77,7 @@ bool placePiece(int* origBoardPtr, int* newBoardPtr,
 
       return false;
     }
+#endif
   }
 
   //Copy the original board, as a ship is going to be placed
