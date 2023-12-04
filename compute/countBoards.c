@@ -1,6 +1,7 @@
+#include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
 #include <string.h>
 #include <time.h>
 
@@ -15,7 +16,7 @@ struct DataPtrs {
   unsigned long long int* totalBoardsPtr;
   unsigned int boardMemSize;
   int boardWidth;
-  int* boardPtr;
+  int32_t* boardPtr;
   int validShipIndicesCount;
   int* validShipIndicesPtr;
 };
@@ -23,7 +24,7 @@ struct DataPtrs {
 //Struct for the data frequently copied, only to calculate the size
 struct CopyData {int* a; unsigned long long int* b; unsigned int c; int d;};
 
-bool placePiece(int* origBoardPtr, int* newBoardPtr,
+bool placePiece(int32_t* origBoardPtr, int32_t* newBoardPtr,
                 unsigned int boardMemSize, int boardWidth,
                 int shipLength, int x, int y, bool rotated) {
   //Starting index for the ship
@@ -142,7 +143,7 @@ void compute(struct DataPtrs* dataPtrsPtr) {
     requiredData.validShipIndicesCount = newShipCount;
 
     //Create a new empty board, to copy the last good board onto when placing a ship
-    int newBoard[boardWidth * boardWidth];
+    int32_t newBoard[boardWidth * boardWidth];
 
     int shipLength = dataPtrsPtr->shipLengthsPtr[validShipIndex];
     int reducedLength = boardWidth - (shipLength - 1);
@@ -185,7 +186,7 @@ int main() {
   int shipLengths[5] = {5, 4, 3, 3, 2};
   const unsigned int boardWidth = 7;
 
-  int board[boardWidth * boardWidth];
+  int32_t board[boardWidth * boardWidth];
   unsigned long long int totalBoards = 0;
 
   //Initialise with 0s
