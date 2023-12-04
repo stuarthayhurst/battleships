@@ -6,6 +6,7 @@
 #include <time.h>
 
 #if defined(USE_AVX2) && defined(__AVX2__)
+  #define USING_AVX2
   #include <immintrin.h>
 #endif
 
@@ -42,7 +43,7 @@ bool placePiece(int32_t* origBoardPtr, int32_t* newBoardPtr,
       return false;
     }
   } else {
-#if defined(USE_AVX2) && defined(__AVX2__)
+#ifdef USING_AVX2
     //Generate mask for loading ship
     int remainingLength = shipLength % 8;
     __m256i shipMask = _mm256_setr_epi32((0 < remainingLength) * -1,
