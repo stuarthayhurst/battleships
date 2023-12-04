@@ -11,7 +11,9 @@ else
 endif
 
 ifeq ($(DEBUG),true)
-  CFLAGS += -g
+  CFLAGS += -g -DVERBOSE
+else ifeq ($(VERBOSE),true)
+  CFLAGS += -DVERBOSE
 endif
 
 countBoards: countBoards.c

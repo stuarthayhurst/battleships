@@ -24,7 +24,8 @@
     - This runs in about 2 minutes and 13 seconds, using a Ryzen 5 5600X
     - Compile: `make -C compute`
       - Supports `FAST=[true/false]` to enable additional optimisations
-      - Supports `DEBUG=[true/false]` to enable debug symbols
+      - Supports `DEBUG=[true/false]` to enable debug symbols and verbose build output
+      - Supports `VERBOSE=[true/false]` to enable verbose build output
       - Supports `AVX2=[true/false]` to disable AVX2 optimisations
     - Run: `./compute/countBoards`
   - These programs don't save the boards, but could easily be modified to save or print them

@@ -10,6 +10,14 @@
   #include <immintrin.h>
 #endif
 
+#ifdef VERBOSE
+  #ifdef USING_AVX2
+    #pragma message("Using AVX2")
+  #else
+    #pragma message("Using scalar code")
+  #endif
+#endif
+
 //Note: Attribute order must not be changed
 //Note: If types change, CopyData will need updating too
 struct DataPtrs {
