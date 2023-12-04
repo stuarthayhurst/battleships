@@ -66,7 +66,7 @@ bool placePiece(int32_t* origBoardPtr, int32_t* newBoardPtr,
     //Horizontally check for a ship on the board, using AVX-512
     for (int i = 0; i < shipLength / 16; i++) {
       __m512i result = _mm512_loadu_epi32((__m512i const *)(origBoardPtr + start + (i * 16)));
-      if (!_mm512_reduce_add_epi32(result)) {
+      if (!_mm512_mask2int(_mm512_cmpneq_epi32_mask(result, _mm512_setzero_epi32()))) {
         continue;
       }
 
@@ -76,7 +76,7 @@ bool placePiece(int32_t* origBoardPtr, int32_t* newBoardPtr,
     //Check any remainder of the ship
     __m512i result = _mm512_maskz_loadu_epi32(mask, origBoardPtr + start + (shipLength - remainingLength));
 
-    if (_mm512_reduce_add_epi32(result)) {
+    if (_mm512_mask2int(_mm512_cmpneq_epi32_mask(result, _mm512_setzero_epi32()))) {
       return false;
     }
 #elif defined(USING_AVX2)
