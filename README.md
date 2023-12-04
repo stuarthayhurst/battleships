@@ -5,6 +5,7 @@
 ## Sub-projects:
   - Battleships computer opponent: A computer opponent to play battleships against
   - Battleships board compute: Find every valid battleships layout, according to grid size and a set of ship lengths
+    - Includes an AVX2 accelerated C implementation
 
 ## Battleships computer opponent:
   - `battleships.py` runs a game of battleships, with options to play with 2 players, against the computer, or watch the computer play against a random number generator
@@ -35,4 +36,5 @@
     |:---------------------|:---------|------------------|
     | Python (3.12)        | 247m 16s | 1,009,000        |
     | Pypy3 (3.9 / 7.3.13) | 46m 19s  | 5,389,000        |
-    | C                    | 2m 13s   | 112,500,000      |
+    | C (Scalar)           | 2m 22s   | 105,600,000      |
+    | C (AVX2)             | 2m 13s   | 112,500,000      |
