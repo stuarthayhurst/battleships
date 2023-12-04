@@ -64,9 +64,11 @@ bool placePiece(int* origBoardPtr, int* newBoardPtr,
     }
 
     //Check any remainder of the ship
-    __m256i result = _mm256_maskload_epi32(origBoardPtr + start + (shipLength - remainingLength), shipMask);
-    if (!_mm256_testz_si256(result, result)) {
-      return false;
+    if (remainingLength > 0) {
+      __m256i result = _mm256_maskload_epi32(origBoardPtr + start + (shipLength - remainingLength), shipMask);
+      if (!_mm256_testz_si256(result, result)) {
+        return false;
+      }
     }
 #else
     //Iterate horizontally over the board
