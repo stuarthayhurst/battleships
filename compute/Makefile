@@ -5,8 +5,7 @@ else
   CFLAGS += -O3
 endif
 
-ifeq ($(AVX512),false)
-else
+ifeq ($(AVX512),true)
   CFLAGS += -DUSE_AVX512
 endif
 
