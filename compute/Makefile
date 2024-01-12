@@ -5,6 +5,10 @@ else
   CFLAGS += -O3
 endif
 
+ifeq ($(AVX512),true)
+  CFLAGS += -DUSE_AVX512
+endif
+
 ifeq ($(AVX2),false)
 else
   CFLAGS += -DUSE_AVX2
