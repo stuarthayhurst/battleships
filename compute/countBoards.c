@@ -61,11 +61,13 @@ bool placePiece(int32_t* origBoardPtr, int32_t* newBoardPtr,
 #ifdef USING_AVX512
     //Generate mask for loading ship remainder
     int remainingLength = shipLength % 16;
+    int32_t* nextTilePtr = origBoardPtr + start;
     uint16_t mask = _bzhi_u32(0xFFFF, remainingLength);
 
     //Horizontally check for a ship on the board, using AVX-512
     for (int i = 0; i < shipLength / 16; i++) {
-      __m512i result = _mm512_loadu_epi32((__m512i const *)(origBoardPtr + start + (i * 16)));
+      __m512i result = _mm512_loadu_epi32((__m512i const *)(nextTilePtr));
+      nextTilePtr += 16;
       if (!_mm512_mask2int(_mm512_cmpneq_epi32_mask(result, _mm512_setzero_epi32()))) {
         continue;
       }
@@ -74,7 +76,7 @@ bool placePiece(int32_t* origBoardPtr, int32_t* newBoardPtr,
     }
 
     //Check any remainder of the ship
-    __m512i result = _mm512_maskz_loadu_epi32(mask, origBoardPtr + start + (shipLength - remainingLength));
+    __m512i result = _mm512_maskz_loadu_epi32(mask, nextTilePtr);
 
     if (_mm512_mask2int(_mm512_cmpneq_epi32_mask(result, _mm512_setzero_epi32()))) {
       return false;
@@ -82,6 +84,7 @@ bool placePiece(int32_t* origBoardPtr, int32_t* newBoardPtr,
 #elif defined(USING_AVX2)
     //Generate mask for loading ship remainder
     int remainingLength = shipLength % 8;
+    int32_t* nextTilePtr = origBoardPtr + start;
     __m256i shipMask = _mm256_setr_epi32((0 < remainingLength) * -1,
                                          (1 < remainingLength) * -1,
                                          (2 < remainingLength) * -1,
@@ -93,7 +96,8 @@ bool placePiece(int32_t* origBoardPtr, int32_t* newBoardPtr,
 
     //Horizontally check for a ship on the board, using AVX2
     for (int i = 0; i < shipLength / 8; i++) {
-      __m256i result = _mm256_loadu_si256((__m256i const *)(origBoardPtr + start + (i * 8)));
+      __m256i result = _mm256_loadu_si256((__m256i const *)(nextTilePtr));
+      nextTilePtr += 8;
       if (_mm256_testz_si256(result, result)) {
         continue;
       }
@@ -103,7 +107,7 @@ bool placePiece(int32_t* origBoardPtr, int32_t* newBoardPtr,
 
     //Check any remainder of the ship
     if (remainingLength > 0) {
-      __m256i result = _mm256_maskload_epi32(origBoardPtr + start + (shipLength - remainingLength), shipMask);
+      __m256i result = _mm256_maskload_epi32(nextTilePtr, shipMask);
       if (!_mm256_testz_si256(result, result)) {
         return false;
       }
