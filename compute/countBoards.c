@@ -37,7 +37,7 @@ struct DataPtrs {
 };
 
 //Struct for the data frequently copied, only to calculate the size
-struct CopyData {int* a; unsigned long long int* b; unsigned int c; int d;};
+struct CopyData {int* a; unsigned long long int* b; int c;};
 
 static bool placePiece(int32_t* origBoardPtr, int32_t* newBoardPtr,
                 int boardWidth, int shipLength, int start, bool rotated) {
