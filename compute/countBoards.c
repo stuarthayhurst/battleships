@@ -30,7 +30,6 @@
 struct DataPtrs {
   int* shipLengthsPtr;
   unsigned long long int* totalBoardsPtr;
-  unsigned int boardMemSize;
   int boardWidth;
   int32_t* boardPtr;
   int validShipIndicesCount;
@@ -41,8 +40,7 @@ struct DataPtrs {
 struct CopyData {int* a; unsigned long long int* b; unsigned int c; int d;};
 
 static bool placePiece(int32_t* origBoardPtr, int32_t* newBoardPtr,
-                unsigned int boardMemSize, int boardWidth,
-                int shipLength, int start, bool rotated) {
+                int boardWidth, int shipLength, int start, bool rotated) {
   //Check for a ship collision
   if (rotated) {
     //Iterate vertically over the board
@@ -122,7 +120,7 @@ static bool placePiece(int32_t* origBoardPtr, int32_t* newBoardPtr,
   }
 
   //Copy the original board, as a ship is going to be placed
-  memcpy(newBoardPtr, origBoardPtr, boardMemSize);
+  memcpy(newBoardPtr, origBoardPtr, boardWidth * boardWidth * sizeof(newBoardPtr[0]));
 
   //Place the ship
   if (rotated) {
@@ -181,8 +179,7 @@ void compute(struct DataPtrs* dataPtrsPtr) {
         for (int y = 0; y < reducedLength; y++) {
           //Attempt to place vertically
           bool success = placePiece(dataPtrsPtr->boardPtr, newBoard,
-                                    dataPtrsPtr->boardMemSize, boardWidth,
-                                    shipLength, (y * boardWidth) + x, true);
+                                    boardWidth, shipLength, (y * boardWidth) + x, true);
 
           //Move on to the next ship
           if (success) {
@@ -192,8 +189,7 @@ void compute(struct DataPtrs* dataPtrsPtr) {
 
           //Attempt to place horizontally
           success = placePiece(dataPtrsPtr->boardPtr, newBoard,
-                               dataPtrsPtr->boardMemSize, boardWidth,
-                               shipLength, (x * boardWidth) + y, false);
+                               boardWidth, shipLength, (x * boardWidth) + y, false);
 
           //Move on to the next ship
           if (!success) {
@@ -227,8 +223,7 @@ int main() {
   unsigned long long int totalBoards = 0;
 
   //Initialise with 0s
-  const int boardMemSize = boardWidth * boardWidth * sizeof(board[0]);
-  memset(&board, 0, boardMemSize);
+  memset(&board, 0, boardWidth * boardWidth * sizeof(board[0]));
 
   //Initialise ship indices (0 -> n)
   const int validShipCount = sizeof(shipLengths) / sizeof(shipLengths[0]);
@@ -241,7 +236,6 @@ int main() {
   struct DataPtrs initialData;
   initialData.shipLengthsPtr = &shipLengths[0];
   initialData.totalBoardsPtr = &totalBoards;
-  initialData.boardMemSize = boardMemSize;
   initialData.boardWidth = boardWidth;
   initialData.boardPtr = board;
   initialData.validShipIndicesCount = validShipCount;
