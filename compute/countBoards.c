@@ -40,12 +40,9 @@ struct DataPtrs {
 //Struct for the data frequently copied, only to calculate the size
 struct CopyData {int* a; unsigned long long int* b; unsigned int c; int d;};
 
-bool placePiece(int32_t* origBoardPtr, int32_t* newBoardPtr,
+static bool placePiece(int32_t* origBoardPtr, int32_t* newBoardPtr,
                 unsigned int boardMemSize, int boardWidth,
-                int shipLength, int x, int y, bool rotated) {
-  //Starting index for the ship
-  int start = (y * boardWidth) + x;
-
+                int shipLength, int start, bool rotated) {
   //Check for a ship collision
   if (rotated) {
     //Iterate vertically over the board
@@ -185,7 +182,7 @@ void compute(struct DataPtrs* dataPtrsPtr) {
           //Attempt to place vertically
           bool success = placePiece(dataPtrsPtr->boardPtr, newBoard,
                                     dataPtrsPtr->boardMemSize, boardWidth,
-                                    shipLength, x, y, true);
+                                    shipLength, (y * boardWidth) + x, true);
 
           //Move on to the next ship
           if (success) {
@@ -196,7 +193,7 @@ void compute(struct DataPtrs* dataPtrsPtr) {
           //Attempt to place horizontally
           success = placePiece(dataPtrsPtr->boardPtr, newBoard,
                                dataPtrsPtr->boardMemSize, boardWidth,
-                               shipLength, y, x, false);
+                               shipLength, (x * boardWidth) + y, false);
 
           //Move on to the next ship
           if (!success) {
