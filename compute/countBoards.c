@@ -182,8 +182,7 @@ void compute(int* shipLengthsPtr, unsigned long long int* totalBoardsPtr,
     }
   } else {
     //Increase total valid boards found, only print every 10 million
-    (*totalBoardsPtr)++;
-    if (*totalBoardsPtr % 10000000 != 0) {
+    if (++(*totalBoardsPtr) % 10000000 != 0) {
       return;
     }
 
