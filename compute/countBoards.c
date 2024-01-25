@@ -25,20 +25,6 @@
   #endif
 #endif
 
-//Note: Attribute order must not be changed
-//Note: If types change, CopyData will need updating too
-struct DataPtrs {
-  int* shipLengthsPtr;
-  unsigned long long int* totalBoardsPtr;
-  int boardWidth;
-  int32_t* boardPtr;
-  int validShipIndicesCount;
-  int* validShipIndicesPtr;
-};
-
-//Struct for the data frequently copied, only to calculate the size
-struct CopyData {int* a; unsigned long long int* b; int c;};
-
 static bool placePiece(int32_t* origBoardPtr, int32_t* newBoardPtr,
                 int boardWidth, int shipLength, int start, bool rotated) {
   //Check for a ship collision
@@ -139,24 +125,21 @@ static bool placePiece(int32_t* origBoardPtr, int32_t* newBoardPtr,
   return true;
 }
 
-void compute(struct DataPtrs* dataPtrsPtr) {
+void compute(int* shipLengthsPtr, unsigned long long int* totalBoardsPtr,
+             int boardWidth, int32_t* boardPtr, int validShipIndicesCount,
+             int* validShipIndicesPtr) {
   //Return if all ships have been placed
-  if (dataPtrsPtr->validShipIndicesCount != 0) {
-    //Copy across constant values between recursions
-    struct DataPtrs requiredData;
-    memcpy(&requiredData, dataPtrsPtr, sizeof(struct CopyData));
-
-    int boardWidth = dataPtrsPtr->boardWidth;
-    for (int rawShipIndex = 0; rawShipIndex < dataPtrsPtr->validShipIndicesCount; rawShipIndex++) {
-      int validShipIndex = dataPtrsPtr->validShipIndicesPtr[rawShipIndex];
+  if (validShipIndicesCount != 0) {
+    for (int rawShipIndex = 0; rawShipIndex < validShipIndicesCount; rawShipIndex++) {
+      int validShipIndex = validShipIndicesPtr[rawShipIndex];
 
       //Filter the currently selected ship out for next recursion
-      int newShipCount = dataPtrsPtr->validShipIndicesCount - 1;
+      int newShipCount = validShipIndicesCount - 1;
       int updatedShipIndices[newShipCount];
       if (newShipCount > 0) {
         int nextEmpty = 0;
         for (int i = 0; i < newShipCount + 1; i++) {
-          int newIndex = dataPtrsPtr->validShipIndicesPtr[i];
+          int newIndex = validShipIndicesPtr[i];
           if (newIndex != validShipIndex) {
             updatedShipIndices[nextEmpty] = newIndex;
             nextEmpty++;
@@ -164,51 +147,47 @@ void compute(struct DataPtrs* dataPtrsPtr) {
         }
       }
 
-      //Update the list of valid ships for next recursion
-      requiredData.validShipIndicesPtr = updatedShipIndices;
-      requiredData.validShipIndicesCount = newShipCount;
-
       //Create a new empty board, to copy the last good board onto when placing a ship
       int32_t newBoard[boardWidth * boardWidth];
 
-      int shipLength = dataPtrsPtr->shipLengthsPtr[validShipIndex];
+      int shipLength = shipLengthsPtr[validShipIndex];
       int reducedLength = boardWidth - (shipLength - 1);
 
       //Attempt to place the current ship on the new board, and recurse
       for (int x = 0; x < boardWidth; x++) {
         for (int y = 0; y < reducedLength; y++) {
           //Attempt to place vertically
-          bool success = placePiece(dataPtrsPtr->boardPtr, newBoard,
-                                    boardWidth, shipLength, (y * boardWidth) + x, true);
+          bool success = placePiece(boardPtr, newBoard, boardWidth,
+                                    shipLength, (y * boardWidth) + x, true);
 
           //Move on to the next ship
           if (success) {
-            requiredData.boardPtr = newBoard;
-            compute(&requiredData);
+            compute(shipLengthsPtr, totalBoardsPtr, boardWidth,
+                    newBoard, newShipCount, updatedShipIndices);
           }
 
           //Attempt to place horizontally
-          success = placePiece(dataPtrsPtr->boardPtr, newBoard,
-                               boardWidth, shipLength, (x * boardWidth) + y, false);
+          success = placePiece(boardPtr, newBoard, boardWidth,
+                               shipLength, (x * boardWidth) + y, false);
 
           //Move on to the next ship
           if (!success) {
             continue;
           }
 
-          requiredData.boardPtr = newBoard;
-          compute(&requiredData);
+          compute(shipLengthsPtr, totalBoardsPtr, boardWidth,
+                  newBoard, newShipCount, updatedShipIndices);
         }
       }
     }
   } else {
     //Increase total valid boards found, only print every 10 million
-    (*dataPtrsPtr->totalBoardsPtr)++;
-    if ((*dataPtrsPtr->totalBoardsPtr) % 10000000 != 0) {
+    (*totalBoardsPtr)++;
+    if (*totalBoardsPtr % 10000000 != 0) {
       return;
     }
 
-    printf("Found valid board %lli\n", (*dataPtrsPtr->totalBoardsPtr));
+    printf("Found valid board %lli\n", *totalBoardsPtr);
   }
 
   return;
@@ -232,20 +211,11 @@ int main() {
     validShipIndices[i] = i;
   }
 
-  //Pack data into struct to start recursion
-  struct DataPtrs initialData;
-  initialData.shipLengthsPtr = &shipLengths[0];
-  initialData.totalBoardsPtr = &totalBoards;
-  initialData.boardWidth = boardWidth;
-  initialData.boardPtr = board;
-  initialData.validShipIndicesCount = validShipCount;
-  initialData.validShipIndicesPtr = &validShipIndices[0];
-
   struct timespec start, finish;
   timespec_get(&start, TIME_UTC);
 
   //Do actual calculations
-  compute(&initialData);
+  compute(shipLengths, &totalBoards, boardWidth, board, validShipCount, validShipIndices);
 
   //Calculate time delta to nearest nanosecond
   timespec_get(&finish, TIME_UTC);
