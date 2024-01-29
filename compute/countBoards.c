@@ -43,13 +43,13 @@ static bool placePiece(int32_t* origBoardPtr, int32_t* newBoardPtr,
     //Generate mask for loading ship remainder
     int remainingLength = shipLength % 16;
     int32_t* nextTilePtr = origBoardPtr + start;
-    uint16_t mask = _bzhi_u32(0xFFFF, remainingLength);
+    __mmask16 mask = _bzhi_u32(0xFFFF, remainingLength);
 
     //Horizontally check for a ship on the board, using AVX-512
     for (int i = 0; i < shipLength / 16; i++) {
-      __m512i result = _mm512_loadu_epi32((__m512i const *)(nextTilePtr));
+      __m512i result = _mm512_loadu_epi32(nextTilePtr);
       nextTilePtr += 16;
-      if (!_mm512_mask2int(_mm512_cmpneq_epi32_mask(result, _mm512_setzero_epi32()))) {
+      if (!_mm512_mask2int(_mm512_test_epi32_mask(result, result))) {
         continue;
       }
 
@@ -58,8 +58,7 @@ static bool placePiece(int32_t* origBoardPtr, int32_t* newBoardPtr,
 
     //Check any remainder of the ship
     __m512i result = _mm512_maskz_loadu_epi32(mask, nextTilePtr);
-
-    if (_mm512_mask2int(_mm512_cmpneq_epi32_mask(result, _mm512_setzero_epi32()))) {
+    if (_mm512_mask2int(_mm512_test_epi32_mask(result, result))) {
       return false;
     }
 #elif defined(USING_AVX2)
