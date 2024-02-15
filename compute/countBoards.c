@@ -26,7 +26,7 @@
 #endif
 
 static bool placePiece(int32_t* origBoardPtr, int32_t* newBoardPtr,
-                int boardWidth, int shipLength, int start, bool rotated) {
+                       int boardWidth, int shipLength, int start, bool rotated) {
   //Check for a ship collision
   if (rotated) {
     //Iterate vertically over the board
