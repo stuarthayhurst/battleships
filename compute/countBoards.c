@@ -49,7 +49,7 @@ static bool placePiece(int32_t* origBoardPtr, int32_t* newBoardPtr,
     for (int i = 0; i < shipLength / 16; i++) {
       __m512i result = _mm512_loadu_epi32(nextTilePtr);
       nextTilePtr += 16;
-      if (!_mm512_mask2int(_mm512_test_epi32_mask(result, result))) {
+      if (!_mm512_test_epi32_mask(result, result)) {
         continue;
       }
 
@@ -58,7 +58,7 @@ static bool placePiece(int32_t* origBoardPtr, int32_t* newBoardPtr,
 
     //Check any remainder of the ship
     __m512i result = _mm512_maskz_loadu_epi32(mask, nextTilePtr);
-    if (_mm512_mask2int(_mm512_test_epi32_mask(result, result))) {
+    if (_mm512_test_epi32_mask(result, result)) {
       return false;
     }
 #elif defined(USING_AVX2)
