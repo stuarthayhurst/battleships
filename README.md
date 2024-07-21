@@ -5,7 +5,7 @@
 ## Sub-projects:
   - Battleships computer opponent: A computer opponent to play battleships against
   - Battleships board compute: Find every valid battleships layout, according to grid size and a set of ship lengths
-    - Includes an AVX2 + AVX-512 accelerated C implementation
+    - Includes AVX2 and AVX-512 accelerated C implementations
 
 ## Battleships computer opponent:
   - `battleships.py` runs a game of battleships, with options to play with 2 players, against the computer, or watch the computer play against a random number generator
@@ -28,11 +28,10 @@
       - Supports `FAST=[true/false]` to enable additional optimisations
       - Supports `DEBUG=[true/false]` to enable debug symbols and verbose build output
       - Supports `VERBOSE=[true/false]` to enable verbose build output
-      - Supports `AVX2=[true/false]` to disable AVX2 optimisations
-        - AVX2 optimisations are enabled by default, when supported
+      - Supports `AVX2=[true/false]` to enable AVX2 optimisations
       - Supports `AVX512=[true/false]` to enable AVX-512 optimisations
-        - AVX-512 optimisations are disabled by default
-        - If `AVX2` and `AVX512` are both true, `AVX512` will be chosen
+        - AVX2 and AVX-512 optimisations are enabled by default
+        - AVX-512 will be used before AVX2
     - Run: `./compute/countBoards`
   - These programs don't save the boards, but could easily be modified to save or print them
   - Comparison of implementation performance:
