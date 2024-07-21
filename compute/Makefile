@@ -1,8 +1,14 @@
-CFLAGS += -Wall -Wextra -Werror -std=c11 -march=native -flto=auto
+CFLAGS += -Wall -Wextra -Werror -std=c11 -flto=auto
 ifeq ($(FAST),true)
   CFLAGS += -Ofast
 else
   CFLAGS += -O3
+endif
+
+ifndef ARCH
+  CFLAGS += -march=native
+else
+  CFLAGS += -march=$(ARCH)
 endif
 
 ifeq ($(AVX512),false)

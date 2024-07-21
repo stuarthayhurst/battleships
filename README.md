@@ -28,6 +28,9 @@
       - Supports `FAST=[true/false]` to enable additional optimisations
       - Supports `DEBUG=[true/false]` to enable debug symbols and verbose build output
       - Supports `VERBOSE=[true/false]` to enable verbose build output
+      - Supports `ARCH=[microarchitecture]` to target a specific microarchitecture
+        - Defaults to using `-march=native`
+        - `ARCH=x86-64` could be helpful to run on any x86-64 CPU, if being used to benchmark
       - Supports `AVX2=[true/false]` to enable AVX2 optimisations
       - Supports `AVX512=[true/false]` to enable AVX-512 optimisations
         - AVX2 and AVX-512 optimisations are enabled by default
