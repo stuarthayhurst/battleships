@@ -46,4 +46,4 @@
     | C (AVX-512) (GCC-14) | 1m 09s   | 216,800,000      |
 
     - Runtime is rounded to the nearest second
-    - Valid boards per second is rouned to 4 significant figures
+    - Number of valid boards per second is rounded to 4 significant figures
