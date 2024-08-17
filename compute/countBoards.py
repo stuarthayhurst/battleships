@@ -36,19 +36,16 @@ def compute(validShips, grid):
   shipLength = shipData[validShips[0]]
   newValidShips = validShips[1:]
   reducedLength = boardSize - (shipLength - 1)
-  for rotated in [False, True]:
-    if rotated:
-      for x in range(boardSize):
-        for y in range(reducedLength):
-          newBoard, success = placePiece(grid, shipLength, x, y, rotated)
-          if success:
-            compute(newValidShips, newBoard)
-    else:
-      for x in range(reducedLength):
-        for y in range(boardSize):
-          newBoard, success = placePiece(grid, shipLength, x, y, rotated)
-          if success:
-            compute(newValidShips, newBoard)
+  for x in range(boardSize):
+    for y in range(reducedLength):
+      newBoard, success = placePiece(grid, shipLength, x, y, True)
+      if success:
+        compute(newValidShips, newBoard)
+  for x in range(reducedLength):
+    for y in range(boardSize):
+      newBoard, success = placePiece(grid, shipLength, x, y, False)
+      if success:
+        compute(newValidShips, newBoard)
 
 shipData = [5, 4, 3, 3, 2]
 boardSize = 7
