@@ -26,6 +26,7 @@
 #endif
 
 #define BOARD_WIDTH 7
+unsigned long long int totalBoards = 0;
 
 static bool placePiece(int32_t* origBoardPtr, int32_t* newBoardPtr,
                        int shipLength, int start, bool rotated) {
@@ -126,7 +127,8 @@ static bool placePiece(int32_t* origBoardPtr, int32_t* newBoardPtr,
   return true;
 }
 
-void compute(int* shipLengthsPtr, unsigned long long int* totalBoardsPtr, int32_t* boardPtr) {
+void compute(int* shipLengthsPtr, int32_t* boardPtr) {
+  //Check there's a ship to place, and place it
   int shipLength = *(shipLengthsPtr++);
   if (shipLength != 0) {
     //Create a new empty board, to copy the last good board onto when placing a ship
@@ -141,7 +143,7 @@ void compute(int* shipLengthsPtr, unsigned long long int* totalBoardsPtr, int32_
 
         //Move on to the next location
         if (success) {
-          compute(shipLengthsPtr, totalBoardsPtr, newBoard);
+         compute(shipLengthsPtr, newBoard);
         }
 
         //Attempt to place horizontally
@@ -152,36 +154,30 @@ void compute(int* shipLengthsPtr, unsigned long long int* totalBoardsPtr, int32_
           continue;
         }
 
-        compute(shipLengthsPtr, totalBoardsPtr, newBoard);
+        compute(shipLengthsPtr, newBoard);
       }
     }
   } else {
     //Increase total valid boards found, only print every 10 million
-    if (++(*totalBoardsPtr) % 10000000 != 0) {
-      return;
+    if (++totalBoards % 10000000 == 0) {
+      printf("Found valid board %lli\n", totalBoards);
     }
-
-    printf("Found valid board %lli\n", *totalBoardsPtr);
   }
-
-  return;
 }
 
 int main() {
   //Zero-terminated ship lengths
   int shipLengths[] = {5, 4, 3, 3, 2, 0};
 
+  //Initialise board with 0s
   int32_t board[BOARD_WIDTH * BOARD_WIDTH];
-  unsigned long long int totalBoards = 0;
-
-  //Initialise with 0s
   memset(&board, 0, BOARD_WIDTH * BOARD_WIDTH * sizeof(board[0]));
 
   struct timespec start, finish;
   timespec_get(&start, TIME_UTC);
 
   //Do actual calculations
-  compute(shipLengths, &totalBoards, board);
+  compute(shipLengths, board);
 
   //Calculate time delta to nearest nanosecond
   timespec_get(&finish, TIME_UTC);
