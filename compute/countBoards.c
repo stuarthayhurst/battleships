@@ -125,58 +125,35 @@ static bool placePiece(int32_t* origBoardPtr, int32_t* newBoardPtr,
 }
 
 void compute(int* shipLengthsPtr, unsigned long long int* totalBoardsPtr,
-             int boardWidth, int32_t* boardPtr, int validShipIndicesCount,
-             int* validShipIndicesPtr) {
-  //Return if all ships have been placed
-  if (validShipIndicesCount != 0) {
-    for (int rawShipIndex = 0; rawShipIndex < validShipIndicesCount; rawShipIndex++) {
-      int validShipIndex = validShipIndicesPtr[rawShipIndex];
+             int boardWidth, int32_t* boardPtr) {
+  int shipLength = *(shipLengthsPtr++);
+  if (shipLength != 0) {
+    //Create a new empty board, to copy the last good board onto when placing a ship
+    int32_t newBoard[boardWidth * boardWidth];
 
-      //Filter the currently selected ship out for next recursion
-      int newShipCount = validShipIndicesCount - 1;
-      int updatedShipIndices[newShipCount];
-      if (newShipCount > 0) {
-        int nextEmpty = 0;
-        for (int i = 0; i < newShipCount + 1; i++) {
-          int newIndex = validShipIndicesPtr[i];
-          if (newIndex != validShipIndex) {
-            updatedShipIndices[nextEmpty] = newIndex;
-            nextEmpty++;
-          }
+    //Attempt to place the current ship on the new board, and recurse
+    int reducedLength = boardWidth - (shipLength - 1);
+    for (int x = 0; x < boardWidth; x++) {
+      for (int y = 0; y < reducedLength; y++) {
+        //Attempt to place vertically
+        bool success = placePiece(boardPtr, newBoard, boardWidth,
+                                  shipLength, (y * boardWidth) + x, true);
+
+        //Move on to the next location
+        if (success) {
+          compute(shipLengthsPtr, totalBoardsPtr, boardWidth, newBoard);
         }
-      }
 
-      //Create a new empty board, to copy the last good board onto when placing a ship
-      int32_t newBoard[boardWidth * boardWidth];
+        //Attempt to place horizontally
+        success = placePiece(boardPtr, newBoard, boardWidth,
+                             shipLength, (x * boardWidth) + y, false);
 
-      int shipLength = shipLengthsPtr[validShipIndex];
-      int reducedLength = boardWidth - (shipLength - 1);
-
-      //Attempt to place the current ship on the new board, and recurse
-      for (int x = 0; x < boardWidth; x++) {
-        for (int y = 0; y < reducedLength; y++) {
-          //Attempt to place vertically
-          bool success = placePiece(boardPtr, newBoard, boardWidth,
-                                    shipLength, (y * boardWidth) + x, true);
-
-          //Move on to the next ship
-          if (success) {
-            compute(shipLengthsPtr, totalBoardsPtr, boardWidth,
-                    newBoard, newShipCount, updatedShipIndices);
-          }
-
-          //Attempt to place horizontally
-          success = placePiece(boardPtr, newBoard, boardWidth,
-                               shipLength, (x * boardWidth) + y, false);
-
-          //Move on to the next ship
-          if (!success) {
-            continue;
-          }
-
-          compute(shipLengthsPtr, totalBoardsPtr, boardWidth,
-                  newBoard, newShipCount, updatedShipIndices);
+        //Move on to the next location
+        if (!success) {
+          continue;
         }
+
+        compute(shipLengthsPtr, totalBoardsPtr, boardWidth, newBoard);
       }
     }
   } else {
@@ -193,7 +170,7 @@ void compute(int* shipLengthsPtr, unsigned long long int* totalBoardsPtr,
 
 int main() {
   //Configurable inputs
-  int shipLengths[5] = {5, 4, 3, 3, 2};
+  int shipLengths[] = {5, 4, 3, 3, 2, 0};
   const unsigned int boardWidth = 7;
 
   int32_t board[boardWidth * boardWidth];
@@ -202,18 +179,11 @@ int main() {
   //Initialise with 0s
   memset(&board, 0, boardWidth * boardWidth * sizeof(board[0]));
 
-  //Initialise ship indices (0 -> n)
-  const int validShipCount = sizeof(shipLengths) / sizeof(shipLengths[0]);
-  int validShipIndices[validShipCount];
-  for (int i = 0; i < validShipCount; i++) {
-    validShipIndices[i] = i;
-  }
-
   struct timespec start, finish;
   timespec_get(&start, TIME_UTC);
 
   //Do actual calculations
-  compute(shipLengths, &totalBoards, boardWidth, board, validShipCount, validShipIndices);
+  compute(shipLengths, &totalBoards, boardWidth, board);
 
   //Calculate time delta to nearest nanosecond
   timespec_get(&finish, TIME_UTC);
