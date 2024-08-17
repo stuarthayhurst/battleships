@@ -28,100 +28,103 @@
 #define BOARD_WIDTH 7
 unsigned long long int totalBoards = 0;
 
-static bool placePiece(int32_t* origBoardPtr, int32_t* newBoardPtr,
-                       int shipLength, int start, bool rotated) {
-  //Check for a ship collision
-  if (rotated) {
-    //Iterate vertically over the board
-    int stop = start + (shipLength * BOARD_WIDTH);
-    for (int i = start; i < stop; i += BOARD_WIDTH) {
-      if (origBoardPtr[i] == 0) {
-        continue;
-      }
-
-      return false;
-    }
-  } else {
+static bool placePieceHoriz(int32_t* origBoardPtr, int32_t* newBoardPtr,
+                            int shipLength, int start) {
+  //Check for a ship collision horizontally
 #ifdef USING_AVX512
-    //Generate mask for loading ship remainder
-    int remainingLength = shipLength % 16;
-    int32_t* nextTilePtr = origBoardPtr + start;
-    __mmask16 mask = _bzhi_u32(0xFFFF, remainingLength);
+  //Generate mask for loading ship remainder
+  int remainingLength = shipLength % 16;
+  int32_t* nextTilePtr = origBoardPtr + start;
+  __mmask16 mask = _bzhi_u32(0xFFFF, remainingLength);
 
-    //Horizontally check for a ship on the board, using AVX-512
-    for (int i = 0; i < shipLength / 16; i++) {
-      __m512i result = _mm512_loadu_epi32(nextTilePtr);
-      nextTilePtr += 16;
-      if (!_mm512_test_epi32_mask(result, result)) {
-        continue;
-      }
-
-      return false;
+  //Horizontally check for a ship on the board, using AVX-512
+  for (int i = 0; i < shipLength / 16; i++) {
+    __m512i result = _mm512_loadu_epi32(nextTilePtr);
+    nextTilePtr += 16;
+    if (!_mm512_test_epi32_mask(result, result)) {
+      continue;
     }
 
-    //Check any remainder of the ship
-    __m512i result = _mm512_maskz_loadu_epi32(mask, nextTilePtr);
-    if (_mm512_test_epi32_mask(result, result)) {
-      return false;
-    }
+    return false;
+  }
+
+  //Check any remainder of the ship
+  __m512i result = _mm512_maskz_loadu_epi32(mask, nextTilePtr);
+  if (_mm512_test_epi32_mask(result, result)) {
+    return false;
+  }
 #elif defined(USING_AVX2)
-    //Generate mask for loading ship remainder
-    int remainingLength = shipLength % 8;
-    int32_t* nextTilePtr = origBoardPtr + start;
-    __m256i shipMask = _mm256_setr_epi32((0 < remainingLength) * -1,
-                                         (1 < remainingLength) * -1,
-                                         (2 < remainingLength) * -1,
-                                         (3 < remainingLength) * -1,
-                                         (4 < remainingLength) * -1,
-                                         (5 < remainingLength) * -1,
-                                         (6 < remainingLength) * -1,
-                                         (7 < remainingLength) * -1);
+  //Generate mask for loading ship remainder
+  int remainingLength = shipLength % 8;
+  int32_t* nextTilePtr = origBoardPtr + start;
+  __m256i shipMask = _mm256_setr_epi32((0 < remainingLength) * -1,
+                                       (1 < remainingLength) * -1,
+                                       (2 < remainingLength) * -1,
+                                       (3 < remainingLength) * -1,
+                                       (4 < remainingLength) * -1,
+                                       (5 < remainingLength) * -1,
+                                       (6 < remainingLength) * -1,
+                                       (7 < remainingLength) * -1);
 
-    //Horizontally check for a ship on the board, using AVX2
-    for (int i = 0; i < shipLength / 8; i++) {
-      __m256i result = _mm256_loadu_si256((__m256i const *)(nextTilePtr));
-      nextTilePtr += 8;
-      if (_mm256_testz_si256(result, result)) {
-        continue;
-      }
+  //Horizontally check for a ship on the board, using AVX2
+  for (int i = 0; i < shipLength / 8; i++) {
+    __m256i result = _mm256_loadu_si256((__m256i const *)(nextTilePtr));
+    nextTilePtr += 8;
+    if (_mm256_testz_si256(result, result)) {
+      continue;
+    }
 
+    return false;
+  }
+
+  //Check any remainder of the ship
+  if (remainingLength > 0) {
+    __m256i result = _mm256_maskload_epi32(nextTilePtr, shipMask);
+    if (!_mm256_testz_si256(result, result)) {
       return false;
     }
-
-    //Check any remainder of the ship
-    if (remainingLength > 0) {
-      __m256i result = _mm256_maskload_epi32(nextTilePtr, shipMask);
-      if (!_mm256_testz_si256(result, result)) {
-        return false;
-      }
-    }
+  }
 #else
-    //Iterate horizontally over the board
-    for (int i = start; i < start + shipLength; i++) {
-      if (origBoardPtr[i] == 0) {
-        continue;
-      }
-
-      return false;
+  //Iterate horizontally over the board
+  for (int i = start; i < start + shipLength; i++) {
+    if (origBoardPtr[i] == 0) {
+      continue;
     }
+
+    return false;
+  }
 #endif
+
+  //Copy the original board, as a ship is going to be placed
+  memcpy(newBoardPtr, origBoardPtr, BOARD_WIDTH * BOARD_WIDTH * sizeof(newBoardPtr[0]));
+
+  //Place the ship horizontally
+  for (int i = start; i < start + shipLength; i++) {
+    newBoardPtr[i] = 1;
+  }
+
+  return true;
+}
+
+static bool placePieceVert(int32_t* origBoardPtr, int32_t* newBoardPtr,
+                           int shipLength, int start) {
+  //Check for a ship collision vertically
+  int stop = start + (shipLength * BOARD_WIDTH);
+  for (int i = start; i < stop; i += BOARD_WIDTH) {
+    if (origBoardPtr[i] == 0) {
+      continue;
+    }
+
+    return false;
   }
 
   //Copy the original board, as a ship is going to be placed
   memcpy(newBoardPtr, origBoardPtr, BOARD_WIDTH * BOARD_WIDTH * sizeof(newBoardPtr[0]));
 
-  //Place the ship
-  if (rotated) {
-    //Iterate vertically over the board
-    int stop = start + (shipLength * BOARD_WIDTH);
-    for (int i = start; i < stop; i += BOARD_WIDTH) {
-      newBoardPtr[i] = 1;
-    }
-  } else {
-    //Iterate horizontally over the board
-    for (int i = start; i < start + shipLength; i++) {
-      newBoardPtr[i] = 1;
-    }
+  //Place the ship vertically
+  stop = start + (shipLength * BOARD_WIDTH);
+  for (int i = start; i < stop; i += BOARD_WIDTH) {
+    newBoardPtr[i] = 1;
   }
 
   return true;
@@ -139,7 +142,7 @@ void compute(int* shipLengthsPtr, int32_t* boardPtr) {
     for (int x = 0; x < BOARD_WIDTH; x++) {
       for (int y = 0; y < reducedLength; y++) {
         //Attempt to place vertically
-        bool success = placePiece(boardPtr, newBoard, shipLength, (y * BOARD_WIDTH) + x, true);
+        bool success = placePieceVert(boardPtr, newBoard, shipLength, (y * BOARD_WIDTH) + x);
 
         //Move on to the next location
         if (success) {
@@ -147,7 +150,7 @@ void compute(int* shipLengthsPtr, int32_t* boardPtr) {
         }
 
         //Attempt to place horizontally
-        success = placePiece(boardPtr, newBoard, shipLength, (x * BOARD_WIDTH) + y, false);
+        success = placePieceHoriz(boardPtr, newBoard, shipLength, (x * BOARD_WIDTH) + y);
 
         //Move on to the next location
         if (!success) {
