@@ -43,9 +43,9 @@
     |:---------------------|:--------|:-----------------|
     | Python (3.12)        | 71.56s  | 1,743,000        |
     | Pypy3 (3.9 / 7.3.16) | 13.45s  | 6,957,000        |
-    | C (Scalar) (GCC-14)  | 0.49s   | 252,600,000      |
-    | C (AVX2) (GCC-14)    | 0.70s   | 177,400,000      |
-    | C (AVX-512) (GCC-14) | 0.51s   | 243,800,000      |
+    | C (Scalar) (GCC-14)  | 0.53s   | 234,100,000      |
+    | C (AVX2) (GCC-14)    | 0.48s   | 259,700,000      |
+    | C (AVX-512) (GCC-14) | 0.50s   | 251,900,000      |
 
     - Runtime is rounded to 2 decimal places
     - Number of valid boards per second is rounded to 4 significant figures
