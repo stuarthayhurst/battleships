@@ -39,13 +39,13 @@
   - These programs don't save the boards, but could easily be modified to save or print them
   - Comparison of implementation performance:
 
-    | Runner + version     | Runtime | Valid boards / s |
-    |:---------------------|:--------|:-----------------|
-    | Python (3.12)        | 71.56s  | 1,743,000        |
-    | Pypy3 (3.9 / 7.3.16) | 13.45s  | 6,957,000        |
-    | C (Scalar) (GCC-14)  | 0.53s   | 234,100,000      |
-    | C (AVX2) (GCC-14)    | 0.48s   | 259,700,000      |
-    | C (AVX-512) (GCC-14) | 0.50s   | 251,900,000      |
+    | Runner + version      | Runtime | Valid boards / s |
+    |:----------------------|:--------|:-----------------|
+    | Python (3.12)         | 71.56s  | 1,743,000        |
+    | Pypy3 (3.10 / 7.3.16) | 13.28s  | 9,394,000        |
+    | C (Scalar) (GCC-14)   | 0.53s   | 234,100,000      |
+    | C (AVX2) (GCC-14)     | 0.48s   | 259,700,000      |
+    | C (AVX-512) (GCC-14)  | 0.50s   | 251,900,000      |
 
     - Runtime is rounded to 2 decimal places
     - Number of valid boards per second is rounded to 4 significant figures
