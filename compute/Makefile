@@ -1,9 +1,4 @@
-CFLAGS += -Wall -Wextra -Werror -std=c11 -flto=auto
-ifeq ($(FAST),true)
-  CFLAGS += -Ofast
-else
-  CFLAGS += -O3
-endif
+CFLAGS += -Wall -Wextra -Werror -std=c11 -O3
 
 ifndef ARCH
   CFLAGS += -march=native
