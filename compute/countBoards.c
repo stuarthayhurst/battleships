@@ -146,7 +146,7 @@ void compute(int* shipLengthsPtr, int32_t* boardPtr) {
 
         //Move on to the next location
         if (success) {
-         compute(shipLengthsPtr, newBoard);
+          compute(shipLengthsPtr, newBoard);
         }
 
         //Attempt to place horizontally
