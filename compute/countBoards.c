@@ -26,7 +26,7 @@
 #endif
 
 #define BOARD_WIDTH 7
-unsigned long long int totalBoards = 0;
+uintmax_t totalBoards = 0;
 
 static bool placePieceHoriz(int32_t* restrict origBoardPtr, int32_t* restrict newBoardPtr,
                             int shipLength, int start) {
@@ -136,7 +136,7 @@ void compute(int* restrict shipLengthsPtr, int32_t* restrict boardPtr) {
   if (shipLength == 0) {
     //Increase total valid boards found, only print every 10 million
     if (++totalBoards % 10000000 == 0) {
-      printf("Found valid board %lli\n", totalBoards);
+      printf("Found valid board %ju\n", totalBoards);
     }
   } else {
     //Create a new empty board, to copy the last good board onto when placing a ship
@@ -187,7 +187,7 @@ int main() {
   double deltaTime = (double)(finish.tv_sec - start.tv_sec) + ((double)(finish.tv_nsec - start.tv_nsec) / 1000000000.0f);
   double boardRate = (double)totalBoards / deltaTime;
 
-  printf("\nFound %lli boards in %0.2f seconds\n", totalBoards, deltaTime);
+  printf("\nFound %ju boards in %0.2f seconds\n", totalBoards, deltaTime);
   printf("%0.2f boards / second\n", boardRate);
 
   return EXIT_SUCCESS;
