@@ -129,7 +129,7 @@ static bool placePieceVert(int32_t* restrict origBoardPtr, int32_t* restrict new
   return true;
 }
 
-void compute(int* restrict shipLengthsPtr, int32_t* restrict boardPtr) {
+static void compute(int* restrict shipLengthsPtr, int32_t* restrict boardPtr) {
   //Check there's a ship to place, and place it
   int shipLength = *(shipLengthsPtr++);
   if (shipLength == 0) {
