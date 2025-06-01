@@ -17,7 +17,7 @@
 #ifdef VERBOSE
   #ifdef USING_AVX512
     #pragma message("Using AVX-512")
-  #elif defined(USING_AVX2)
+  #elifdef USING_AVX2
     #pragma message("Using AVX2")
   #else
     #pragma message("Using scalar code")
@@ -52,7 +52,7 @@ static bool placePieceHoriz(int32_t* restrict origBoardPtr, int32_t* restrict ne
   if (_mm512_test_epi32_mask(result, result)) {
     return false;
   }
-#elif defined(USING_AVX2)
+#elifdef USING_AVX2
   //Generate mask for loading ship remainder
   int remainingLength = shipLength % 8;
   int32_t* restrict nextTilePtr = origBoardPtr + start;
