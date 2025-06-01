@@ -17,7 +17,7 @@ else
 endif
 
 ifeq ($(DEBUG),true)
-  CFLAGS += -g -DVERBOSE
+  CFLAGS += -g -fno-omit-frame-pointer -fsanitize=address,undefined -DVERBOSE
 else ifeq ($(VERBOSE),true)
   CFLAGS += -DVERBOSE
 endif

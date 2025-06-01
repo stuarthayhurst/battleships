@@ -25,7 +25,7 @@
     - This runs in about 0.5 seconds, using a Ryzen 7 7700X
       - However, optimisation work has only been done on Zen 3, Zen 3+ and Zen 4 systems
     - Compile: `make -C compute`
-      - Supports `DEBUG=[true/false]` to enable debug symbols and verbose build output
+      - Supports `DEBUG=[true/false]` to enable debug support and verbose build output
       - Supports `VERBOSE=[true/false]` to enable verbose build output
       - Supports `ARCH=[microarchitecture]` to target a specific microarchitecture
         - Defaults to using `-march=native`
