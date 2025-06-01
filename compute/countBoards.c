@@ -172,8 +172,7 @@ int main() {
   int shipLengths[] = {5, 4, 3, 3, 2, 0};
 
   //Initialise board with 0s
-  int32_t board[BOARD_WIDTH * BOARD_WIDTH];
-  memset(&board, 0, BOARD_WIDTH * BOARD_WIDTH * sizeof(board[0]));
+  int32_t board[BOARD_WIDTH * BOARD_WIDTH] = {};
 
   struct timespec start, finish;
   timespec_get(&start, TIME_UTC);
