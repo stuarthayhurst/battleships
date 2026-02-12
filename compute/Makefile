@@ -25,6 +25,10 @@ ifdef BOARD_TYPE_SIZE
   CFLAGS += -DBOARD_TYPE_SIZE=$(BOARD_TYPE_SIZE)
 endif
 
+ifdef BOARD_WIDTH
+  CFLAGS += -DBOARD_WIDTH=$(BOARD_WIDTH)
+endif
+
 ifeq ($(DEBUG),true)
   CFLAGS += -g -fno-omit-frame-pointer -fsanitize=address,undefined -DVERBOSE
 else ifeq ($(VERBOSE),true)
