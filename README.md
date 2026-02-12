@@ -38,6 +38,10 @@
           - The Makefile selects which options the code is allowed to use
           - The code tests for support at compile time and makes a decision
       - Supports `BOARD_TYPE_SIZE=[integer]` to force a specific board element size
+        - Defaults to `32`
+        - If `AVX512_SHORT` is enabled and supported, this will be overridden
+      - Supports `BOARD_WIDTH=[integer]` to force a select board width
+        - Defaults to `7`
     - Run: `./compute/countBoards`
   - These programs don't save the boards, but could easily be modified to save or print them
   - Comparison of implementation performance:

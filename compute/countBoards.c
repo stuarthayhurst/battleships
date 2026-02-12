@@ -43,6 +43,19 @@
 #define MAKE_BOARD_TYPE(B_TYPE, B_SIZE, B_SUFFIX) MAKE_BOARD_TYPE_N(B_TYPE, B_SIZE, B_SUFFIX)
 #define BOARD_TYPE MAKE_BOARD_TYPE(int, BOARD_TYPE_SIZE, _t)
 
+//Pick a board width
+#if !defined(BOARD_WIDTH) || (BOARD_WIDTH == 7)
+  #undef BOARD_WIDTH
+  #define BOARD_WIDTH 7
+  #ifdef VERBOSE
+    #pragma message("Using default board width")
+  #endif
+#else
+  #ifdef VERBOSE
+    #pragma message("Using non-default board width")
+  #endif
+#endif
+
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -53,7 +66,6 @@
   #include <immintrin.h>
 #endif
 
-#define BOARD_WIDTH 7
 uintmax_t totalBoards = 0;
 
 static bool placePieceHoriz(BOARD_TYPE* restrict origBoardPtr, BOARD_TYPE* restrict newBoardPtr,
