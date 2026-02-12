@@ -1,26 +1,35 @@
-//Set the board type's size
-#ifndef BOARD_TYPE_SIZE
-  #define BOARD_TYPE_SIZE 32
+#if defined(USE_AVX512_SHORT) && defined(__AVX512BW__) && defined(__AVX512VL__) && defined(__BMI2__)
+  #define USING_AVX512_SHORT
+  #ifdef BOARD_TYPE_SIZE
+    #ifdef VERBOSE
+      #pragma message("Overriding specified board type size")
+    #endif
+    #undef BOARD_TYPE_SIZE
+  #endif
+  #define BOARD_TYPE_SIZE 8
 #else
-  #ifdef VERBOSE
-    #pragma message("Using non-default board type")
+  //Ensure the board type's size is set
+  #ifndef BOARD_TYPE_SIZE
+    #define BOARD_TYPE_SIZE 32
+  #else
+    #ifdef VERBOSE
+      #pragma message("Using non-default board type")
+    #endif
+  #endif
+
+  //Determine whether any AVX implementations can be used
+  #if defined(USE_AVX512) && (BOARD_TYPE_SIZE == 32) && defined(__AVX512F__) && defined(__BMI2__)
+    #define USING_AVX512
+  #elif defined(USE_AVX2) && (BOARD_TYPE_SIZE == 32) && defined(__AVX2__)
+    #define USING_AVX2
   #endif
 #endif
 
-//Create a type from the size
-#define MAKE_BOARD_TYPE_N(B_TYPE, B_SIZE, B_SUFFIX) B_TYPE ## B_SIZE ## B_SUFFIX
-#define MAKE_BOARD_TYPE(B_TYPE, B_SIZE, B_SUFFIX) MAKE_BOARD_TYPE_N(B_TYPE, B_SIZE, B_SUFFIX)
-#define BOARD_TYPE MAKE_BOARD_TYPE(int, BOARD_TYPE_SIZE, _t)
-
-//Determine whether any AVX implementations can be used
-#if defined(USE_AVX512) && (BOARD_TYPE_SIZE == 32) && defined(__AVX512F__) && defined(__BMI2__)
-  #define USING_AVX512
-#elif defined(USE_AVX2) && (BOARD_TYPE_SIZE == 32) && defined(__AVX2__)
-  #define USING_AVX2
-#endif
-
+//Report the selection result
 #ifdef VERBOSE
-  #ifdef USING_AVX512
+  #ifdef USING_AVX512_SHORT
+    #pragma message("Using AVX-512 8-bit")
+  #elifdef USING_AVX512
     #pragma message("Using AVX-512")
   #elifdef USING_AVX2
     #pragma message("Using AVX2")
@@ -29,13 +38,18 @@
   #endif
 #endif
 
+//Create a type from the size
+#define MAKE_BOARD_TYPE_N(B_TYPE, B_SIZE, B_SUFFIX) B_TYPE ## B_SIZE ## B_SUFFIX
+#define MAKE_BOARD_TYPE(B_TYPE, B_SIZE, B_SUFFIX) MAKE_BOARD_TYPE_N(B_TYPE, B_SIZE, B_SUFFIX)
+#define BOARD_TYPE MAKE_BOARD_TYPE(int, BOARD_TYPE_SIZE, _t)
+
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
 
-#if defined(USING_AVX512) || defined(USING_AVX2)
+#if defined(USING_AVX512_SHORT) || defined(USING_AVX512) || defined(USING_AVX2)
   #include <immintrin.h>
 #endif
 
@@ -45,7 +59,29 @@ uintmax_t totalBoards = 0;
 static bool placePieceHoriz(BOARD_TYPE* restrict origBoardPtr, BOARD_TYPE* restrict newBoardPtr,
                             int shipLength, int start) {
   //Check for a ship collision horizontally
-#ifdef USING_AVX512
+#ifdef USING_AVX512_SHORT
+  //Generate mask for loading ship remainder
+  int remainingLength = shipLength % 16;
+  BOARD_TYPE* restrict nextTilePtr = origBoardPtr + start;
+  __mmask16 mask = _bzhi_u32(0xFFFF, remainingLength);
+
+  //Horizontally check for a ship on the board, using AVX-512
+  for (int i = 0; i < shipLength / 16; i++) {
+    __m128i result = _mm_loadu_epi8(nextTilePtr);
+    nextTilePtr += 16;
+    if (!_mm_test_epi8_mask(result, result)) {
+      continue;
+    }
+
+    return false;
+  }
+
+  //Check any remainder of the ship
+  __m128i result = _mm_maskz_loadu_epi8(mask, nextTilePtr);
+  if (_mm_test_epi8_mask(result, result)) {
+    return false;
+  }
+#elifdef USING_AVX512
   //Generate mask for loading ship remainder
   int remainingLength = shipLength % 16;
   BOARD_TYPE* restrict nextTilePtr = origBoardPtr + start;

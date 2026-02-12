@@ -6,6 +6,11 @@ else
   CFLAGS += -march=$(ARCH)
 endif
 
+ifeq ($(AVX512_SHORT),false)
+else
+  CFLAGS += -DUSE_AVX512_SHORT
+endif
+
 ifeq ($(AVX512),false)
 else
   CFLAGS += -DUSE_AVX512
