@@ -49,3 +49,13 @@
 
     - Runtime is rounded to 2 decimal places
     - Number of valid boards per second is rounded to 4 significant figures
+    - Comparison of SIMD selection performance:
+    
+       (GCC-14) implementation runtime (seconds) Ryzen 7 9700X
+
+    |SIMD      | 9x9  | 10x10  | 11x11  | 12x12   | 13x13   |
+    |:---------|-----:|-------:|-------:|--------:|--------:|
+    | scalar   | 18.74|   67.56|  379.26|  1396.50|         |
+    | AVX2     | 26.94|   89.10|  531.56|  1633.51|         |
+    | AVX512   | 19.71|  121.06|  363.69|  1330.86|         |
+    | AVX512/8 | 16.02|   83.26|  234.88|   786.12|  2087.83|
