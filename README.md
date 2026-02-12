@@ -32,8 +32,11 @@
         - `ARCH=x86-64` could be helpful to run on any x86-64 CPU, if being used to benchmark
       - Supports `AVX2=[true/false]` to enable AVX2 optimisations
       - Supports `AVX512=[true/false]` to enable AVX-512 optimisations
-        - AVX2 and AVX-512 optimisations are enabled by default
-        - AVX-512 will be used before AVX2
+      - Supports `AVX512_SHORT=[true/false]` to enable AVX-512 optimisations, with 8-bit elements
+        - AVX2, AVX-512 and AVX-512 8-bit optimisations are enabled by default
+        - They'll be used in order of AVX-512 8-bit -> AVX-512 -> AVX2 -> scalar
+          - The Makefile selects which options the code is allowed to use
+          - The code tests for support at compile time and makes a decision
       - Supports `BOARD_TYPE_SIZE=[integer]` to force a specific board element size
     - Run: `./compute/countBoards`
   - These programs don't save the boards, but could easily be modified to save or print them
