@@ -1,17 +1,22 @@
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
-
-#if defined(USE_AVX512) && defined(__AVX512F__) && defined(__BMI2__)
-  #define USING_AVX512
-#elif defined(USE_AVX2) && defined(__AVX2__)
-  #define USING_AVX2
+//Set the board type's size
+#ifndef BOARD_TYPE_SIZE
+  #define BOARD_TYPE_SIZE 32
+#else
+  #ifdef VERBOSE
+    #pragma message("Using non-default board type")
+  #endif
 #endif
 
-#if defined(USING_AVX512) || defined(USING_AVX2)
-  #include <immintrin.h>
+//Create a type from the size
+#define MAKE_BOARD_TYPE_N(B_TYPE, B_SIZE, B_SUFFIX) B_TYPE ## B_SIZE ## B_SUFFIX
+#define MAKE_BOARD_TYPE(B_TYPE, B_SIZE, B_SUFFIX) MAKE_BOARD_TYPE_N(B_TYPE, B_SIZE, B_SUFFIX)
+#define BOARD_TYPE MAKE_BOARD_TYPE(int, BOARD_TYPE_SIZE, _t)
+
+//Determine whether any AVX implementations can be used
+#if defined(USE_AVX512) && (BOARD_TYPE_SIZE == 32) && defined(__AVX512F__) && defined(__BMI2__)
+  #define USING_AVX512
+#elif defined(USE_AVX2) && (BOARD_TYPE_SIZE == 32) && defined(__AVX2__)
+  #define USING_AVX2
 #endif
 
 #ifdef VERBOSE
@@ -24,16 +29,26 @@
   #endif
 #endif
 
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+
+#if defined(USING_AVX512) || defined(USING_AVX2)
+  #include <immintrin.h>
+#endif
+
 #define BOARD_WIDTH 7
 uintmax_t totalBoards = 0;
 
-static bool placePieceHoriz(int32_t* restrict origBoardPtr, int32_t* restrict newBoardPtr,
+static bool placePieceHoriz(BOARD_TYPE* restrict origBoardPtr, BOARD_TYPE* restrict newBoardPtr,
                             int shipLength, int start) {
   //Check for a ship collision horizontally
 #ifdef USING_AVX512
   //Generate mask for loading ship remainder
   int remainingLength = shipLength % 16;
-  int32_t* restrict nextTilePtr = origBoardPtr + start;
+  BOARD_TYPE* restrict nextTilePtr = origBoardPtr + start;
   __mmask16 mask = _bzhi_u32(0xFFFF, remainingLength);
 
   //Horizontally check for a ship on the board, using AVX-512
@@ -55,7 +70,7 @@ static bool placePieceHoriz(int32_t* restrict origBoardPtr, int32_t* restrict ne
 #elifdef USING_AVX2
   //Generate mask for loading ship remainder
   int remainingLength = shipLength % 8;
-  int32_t* restrict nextTilePtr = origBoardPtr + start;
+  BOARD_TYPE* restrict nextTilePtr = origBoardPtr + start;
   __m256i shipMask = _mm256_setr_epi32((0 < remainingLength) * -1,
                                        (1 < remainingLength) * -1,
                                        (2 < remainingLength) * -1,
@@ -105,7 +120,7 @@ static bool placePieceHoriz(int32_t* restrict origBoardPtr, int32_t* restrict ne
   return true;
 }
 
-static bool placePieceVert(int32_t* restrict origBoardPtr, int32_t* restrict newBoardPtr,
+static bool placePieceVert(BOARD_TYPE* restrict origBoardPtr, BOARD_TYPE* restrict newBoardPtr,
                            int shipLength, int start) {
   //Check for a ship collision vertically
   int stop = start + (shipLength * BOARD_WIDTH);
@@ -129,7 +144,7 @@ static bool placePieceVert(int32_t* restrict origBoardPtr, int32_t* restrict new
   return true;
 }
 
-static void compute(int* restrict shipLengthsPtr, int32_t* restrict boardPtr) {
+static void compute(int* restrict shipLengthsPtr, BOARD_TYPE* restrict boardPtr) {
   //Check there's a ship to place, and place it
   int shipLength = *(shipLengthsPtr++);
   if (shipLength == 0) {
@@ -139,7 +154,7 @@ static void compute(int* restrict shipLengthsPtr, int32_t* restrict boardPtr) {
     }
   } else {
     //Create a new empty board, to copy the last good board onto when placing a ship
-    int32_t newBoard[BOARD_WIDTH * BOARD_WIDTH];
+    BOARD_TYPE newBoard[BOARD_WIDTH * BOARD_WIDTH];
 
     //Attempt to place the current ship on the new board, and recurse
     int reducedLength = BOARD_WIDTH - (shipLength - 1);
@@ -172,7 +187,7 @@ int main() {
   int shipLengths[] = {5, 4, 3, 3, 2, 0};
 
   //Initialise board with 0s
-  int32_t board[BOARD_WIDTH * BOARD_WIDTH] = {};
+  BOARD_TYPE board[BOARD_WIDTH * BOARD_WIDTH] = {};
 
   struct timespec start, finish;
   timespec_get(&start, TIME_UTC);

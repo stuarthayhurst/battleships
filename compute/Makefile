@@ -16,6 +16,10 @@ else
   CFLAGS += -DUSE_AVX2
 endif
 
+ifdef BOARD_TYPE_SIZE
+  CFLAGS += -DBOARD_TYPE_SIZE=$(BOARD_TYPE_SIZE)
+endif
+
 ifeq ($(DEBUG),true)
   CFLAGS += -g -fno-omit-frame-pointer -fsanitize=address,undefined -DVERBOSE
 else ifeq ($(VERBOSE),true)

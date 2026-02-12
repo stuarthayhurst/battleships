@@ -34,6 +34,7 @@
       - Supports `AVX512=[true/false]` to enable AVX-512 optimisations
         - AVX2 and AVX-512 optimisations are enabled by default
         - AVX-512 will be used before AVX2
+      - Supports `BOARD_TYPE_SIZE=[integer]` to force a specific board element size
     - Run: `./compute/countBoards`
   - These programs don't save the boards, but could easily be modified to save or print them
   - Comparison of implementation performance:
