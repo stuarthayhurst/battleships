@@ -44,7 +44,7 @@
         - Defaults to `7`
     - Run: `./compute/countBoards`
   - These programs don't save the boards, but could easily be modified to save or print them
-  - Comparison of implementation performance:
+  - Comparison of implementation performance (Ryzen 7 7700X):
 
     | Runner + version      | Runtime | Valid boards / s |
     |:----------------------|:--------|:-----------------|
@@ -57,3 +57,11 @@
 
     - Runtime is rounded to 2 decimal places
     - Number of valid boards per second is rounded to 4 significant figures
+  - Comparison of SIMD selection performance by runtime (Ryzen 7 9700X, GCC-14):
+
+    | SIMD    | 9x9    | 10x10   | 11x11   | 12x12    | 13x13    |
+    |:--------|:-------|:--------|:--------|:---------|:---------|
+    | Scalar  | 18.74s | 67.56s  | 379.26s | 1396.50s |          |
+    | AVX2    | 26.94s | 89.10s  | 531.56s | 1633.51s |          |
+    | AVX512  | 19.71s | 121.06s | 363.69s | 1330.86s |          |
+    | AVX512S | 16.02s | 83.26s  | 234.88s | 786.12s  | 2087.83s |
