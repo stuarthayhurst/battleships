@@ -44,7 +44,7 @@
         - Defaults to `7`
     - Run: `./compute/countBoards`
   - These programs don't save the boards, but could easily be modified to save or print them
-  - Comparison of implementation performance:
+  - Comparison of implementation performance (Ryzen 7 7700X):
 
     | Runner + version      | Runtime | Valid boards / s |
     |:----------------------|:--------|:-----------------|
