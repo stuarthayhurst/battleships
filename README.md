@@ -49,8 +49,7 @@
 
     - Runtime is rounded to 2 decimal places
     - Number of valid boards per second is rounded to 4 significant figures
-    - Comparison of SIMD selection performance:
-      - (GCC-14) implementation runtime (seconds) Ryzen 7 9700X
+  - Comparison of SIMD selection performance by runtime (Ryzen 7 9700X, GCC-14):
 
     | SIMD     | 9x9  | 10x10  | 11x11  | 12x12   | 13x13   |
     |:---------|-----:|-------:|-------:|--------:|--------:|
