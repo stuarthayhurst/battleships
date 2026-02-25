@@ -80,11 +80,9 @@ static bool placePieceHoriz(BOARD_TYPE* restrict origBoardPtr, BOARD_TYPE* restr
   for (int i = 0; i < shipLength / 16; i++) {
     __m128i result = _mm_loadu_epi8(nextTilePtr);
     nextTilePtr += 16;
-    if (!_mm_test_epi8_mask(result, result)) {
-      continue;
+    if (_mm_test_epi8_mask(result, result)) {
+      return false;
     }
-
-    return false;
   }
 
   //Check any remainder of the ship
