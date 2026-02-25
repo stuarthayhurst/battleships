@@ -75,7 +75,6 @@ static bool placePieceHoriz(BOARD_TYPE* restrict origBoardPtr, BOARD_TYPE* restr
   //Generate mask for loading ship remainder
   int remainingLength = shipLength % 16;
   BOARD_TYPE* restrict nextTilePtr = origBoardPtr + start;
-  __mmask16 mask = _bzhi_u32(0xFFFF, remainingLength);
 
   //Horizontally check for a ship on the board, using AVX-512
   for (int i = 0; i < shipLength / 16; i++) {
@@ -89,6 +88,7 @@ static bool placePieceHoriz(BOARD_TYPE* restrict origBoardPtr, BOARD_TYPE* restr
   }
 
   //Check any remainder of the ship
+  __mmask16 mask = _bzhi_u32(0xFFFF, remainingLength);
   __m128i result = _mm_maskz_loadu_epi8(mask, nextTilePtr);
   if (_mm_test_epi8_mask(result, result)) {
     return false;
@@ -97,7 +97,6 @@ static bool placePieceHoriz(BOARD_TYPE* restrict origBoardPtr, BOARD_TYPE* restr
   //Generate mask for loading ship remainder
   int remainingLength = shipLength % 16;
   BOARD_TYPE* restrict nextTilePtr = origBoardPtr + start;
-  __mmask16 mask = _bzhi_u32(0xFFFF, remainingLength);
 
   //Horizontally check for a ship on the board, using AVX-512
   for (int i = 0; i < shipLength / 16; i++) {
@@ -111,6 +110,7 @@ static bool placePieceHoriz(BOARD_TYPE* restrict origBoardPtr, BOARD_TYPE* restr
   }
 
   //Check any remainder of the ship
+  __mmask16 mask = _bzhi_u32(0xFFFF, remainingLength);
   __m512i result = _mm512_maskz_loadu_epi32(mask, nextTilePtr);
   if (_mm512_test_epi32_mask(result, result)) {
     return false;
