@@ -119,14 +119,6 @@ static bool placePieceHoriz(BOARD_TYPE* restrict origBoardPtr, BOARD_TYPE* restr
   //Generate mask for loading ship remainder
   int remainingLength = shipLength % 8;
   BOARD_TYPE* restrict nextTilePtr = origBoardPtr + start;
-  __m256i shipMask = _mm256_setr_epi32((0 < remainingLength) * -1,
-                                       (1 < remainingLength) * -1,
-                                       (2 < remainingLength) * -1,
-                                       (3 < remainingLength) * -1,
-                                       (4 < remainingLength) * -1,
-                                       (5 < remainingLength) * -1,
-                                       (6 < remainingLength) * -1,
-                                       (7 < remainingLength) * -1);
 
   //Horizontally check for a ship on the board, using AVX2
   for (int i = 0; i < shipLength / 8; i++) {
@@ -141,6 +133,11 @@ static bool placePieceHoriz(BOARD_TYPE* restrict origBoardPtr, BOARD_TYPE* restr
 
   //Check any remainder of the ship
   if (remainingLength > 0) {
+    //Generate a mask vector to load the remainder
+    __m256i indexVec = _mm256_setr_epi32(0, 1, 2, 3, 4, 5, 6, 7);
+    __m256i lengthVec = _mm256_set1_epi32(remainingLength);
+    __m256i shipMask = _mm256_cmpgt_epi32(lengthVec, indexVec);
+
     __m256i result = _mm256_maskload_epi32(nextTilePtr, shipMask);
     if (!_mm256_testz_si256(result, result)) {
       return false;
