@@ -45,15 +45,16 @@
     - Run: `./compute/countBoards`
   - These programs don't save the boards, but could easily be modified to save or print them
   - Comparison of implementation performance (Ryzen 7 7700X):
+    - Scalar code is free to be auto-vectorised by the compiler
 
     | Runner + version      | Runtime | Valid boards / s |
     |:----------------------|:--------|:-----------------|
     | Python (3.12)         | 71.56s  | 1,743,000        |
     | Pypy3 (3.10 / 7.3.16) | 13.28s  | 9,394,000        |
-    | C (Scalar) (GCC-15)   | 0.63s   | 198,900,000      |
-    | C (AVX2) (GCC-15)     | 0.54s   | 229,200,000      |
-    | C (AVX-512) (GCC-15)  | 0.80s   | 155,100,000      |
-    | C (AVX-512S) (GCC-15) | 0.44s   | 284,400,000      |
+    | C (Scalar) (GCC-15)   | 0.50s   | 250,900,000      |
+    | C (AVX2) (GCC-15)     | 0.50s   | 251,700,000      |
+    | C (AVX-512) (GCC-15)  | 0.53s   | 236,500,000      |
+    | C (AVX-512S) (GCC-15) | 0.42s   | 299,500,000      |
 
     - Runtime is rounded to 2 decimal places
     - Number of valid boards per second is rounded to 4 significant figures

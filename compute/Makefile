@@ -1,4 +1,4 @@
-CFLAGS += -Wall -Wextra -Werror -Wpedantic -std=c23 -O3
+CFLAGS += -Wall -Wextra -Werror -Wpedantic -std=c23 -O2
 
 ifndef ARCH
   CFLAGS += -march=native
