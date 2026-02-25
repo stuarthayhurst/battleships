@@ -72,11 +72,8 @@ static bool placePieceHoriz(BOARD_TYPE* restrict origBoardPtr, BOARD_TYPE* restr
                             int shipLength, int start) {
   //Check for a ship collision horizontally
 #ifdef USING_AVX512_SHORT
-  //Generate mask for loading ship remainder
-  int remainingLength = shipLength % 16;
+  //Horizontally check for a ship on the board, using AVX-512 and 8-bit elements
   BOARD_TYPE* restrict nextTilePtr = origBoardPtr + start;
-
-  //Horizontally check for a ship on the board, using AVX-512
   for (int i = 0; i < shipLength / 16; i++) {
     __m128i result = _mm_loadu_epi8(nextTilePtr);
     nextTilePtr += 16;
@@ -86,17 +83,14 @@ static bool placePieceHoriz(BOARD_TYPE* restrict origBoardPtr, BOARD_TYPE* restr
   }
 
   //Check any remainder of the ship
-  __mmask16 mask = _bzhi_u32(0xFFFF, remainingLength);
+  __mmask16 mask = _bzhi_u32(0xFFFF, shipLength % 16);
   __m128i result = _mm_maskz_loadu_epi8(mask, nextTilePtr);
   if (_mm_test_epi8_mask(result, result)) {
     return false;
   }
 #elifdef USING_AVX512
-  //Generate mask for loading ship remainder
-  int remainingLength = shipLength % 16;
-  BOARD_TYPE* restrict nextTilePtr = origBoardPtr + start;
-
   //Horizontally check for a ship on the board, using AVX-512
+  BOARD_TYPE* restrict nextTilePtr = origBoardPtr + start;
   for (int i = 0; i < shipLength / 16; i++) {
     __m512i result = _mm512_loadu_epi32(nextTilePtr);
     nextTilePtr += 16;
@@ -108,7 +102,7 @@ static bool placePieceHoriz(BOARD_TYPE* restrict origBoardPtr, BOARD_TYPE* restr
   }
 
   //Check any remainder of the ship
-  __mmask16 mask = _bzhi_u32(0xFFFF, remainingLength);
+  __mmask16 mask = _bzhi_u32(0xFFFF, shipLength % 16);
   __m512i result = _mm512_maskz_loadu_epi32(mask, nextTilePtr);
   if (_mm512_test_epi32_mask(result, result)) {
     return false;
